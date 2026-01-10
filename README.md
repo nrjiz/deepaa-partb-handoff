@@ -63,7 +63,7 @@ Then recreate the venv and reinstall.
 
 ## 4) Run training (recommended commands)
 
-### ✅ Latent dimension 2 (3 archetypes) — recommended
+### Latent dimension 2 (3 archetypes) — recommended
 Good for a clear simplex structure + traversal plot.
 
 ```bat
@@ -71,7 +71,6 @@ python daa_ham10000_tf2.py --labels_csv "C:\Users\User\Downloads\HAM10000_metada
 ```
 
 ### Example: latent dimension 8 (9 archetypes)
-(Your previous run style)
 
 ```bat
 python daa_ham10000_tf2.py --labels_csv "C:\Users\User\Downloads\HAM10000_metadata.csv" --img_dirs "C:\Users\User\Downloads\HAM10000_images_part_1" "C:\Users\User\Downloads\HAM10000_images_part_2" --epochs 10 --batch_size 64 --latent_dim 8 --kl_w 0.001 --at_w 5.0 --a_temp 0.7 --a_entropy_w 0.05
