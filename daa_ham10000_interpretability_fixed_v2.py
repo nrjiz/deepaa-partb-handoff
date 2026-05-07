@@ -264,7 +264,7 @@ def stratified_split(df: pd.DataFrame, val_frac: float, test_frac: float, seed: 
     train_idx, val_idx, test_idx = [], [], []
 
     for lab in sorted(df["label"].unique()):
-        idx = df.index[df["label"] == lab].to_numpy()
+        idx = df.index[df["label"] == lab].to_numpy().copy()
         rng.shuffle(idx)
         n = len(idx)
         n_test = int(round(n * test_frac))
@@ -303,7 +303,7 @@ def make_tf_dataset(df: pd.DataFrame, img_size: int, batch_size: int, shuffle: b
 # -----------------------------
 # Deep AA model (Keras)
 # -----------------------------
-@dataclass(frozen=True)
+@dataclass
 class DAAConfig:
     img_size: int = 128
     latent_dim: int = 2  # d
@@ -312,8 +312,6 @@ class DAAConfig:
     class_w: float = 1.0
     kl_w: float = 1e-2
     at_w: float = 1.0
-    a_temp: float = 0.7         
-    a_entropy_w: float = 0.05
 
 
 class DeepAA(tf.keras.Model):
@@ -374,7 +372,7 @@ class DeepAA(tf.keras.Model):
         h = self.enc(x, training=training)
 
         # A weights
-        a = tf.nn.softmax(self.a_logits(h) / self.cfg.a_temp, axis=-1)
+        a = tf.nn.softmax(self.a_logits(h), axis=-1)  # [B, k]
 
         # mu = A @ Z_fixed
         mu = tf.matmul(a, self.z_fixed)  # [B, d]
@@ -444,9 +442,7 @@ def train_step(model: DeepAA, optimizer, x, y, cfg: DAAConfig):
         # Archetype loss: ||Z_fixed - Z_pred||^2 (Eq.14 idea) :contentReference[oaicite:3]{index=3}
         at = tf.reduce_mean(tf.reduce_sum(tf.square(model.z_fixed - out["z_pred"]), axis=1))
 
-        entropy = -tf.reduce_mean(tf.reduce_sum(out["a"] * tf.math.log(out["a"] + 1e-8), axis=1))
-
-        total = cfg.recon_w * rec + cfg.class_w * cls + cfg.kl_w * kl + cfg.at_w * at + cfg.a_entropy_w * entropy
+        total = cfg.recon_w * rec + cfg.class_w * cls + cfg.kl_w * kl + cfg.at_w * at
 
     grads = tape.gradient(total, model.trainable_variables)
     optimizer.apply_gradients(zip(grads, model.trainable_variables))
@@ -454,15 +450,14 @@ def train_step(model: DeepAA, optimizer, x, y, cfg: DAAConfig):
     return total, rec, cls, kl, at
 
 
-@tf.function
+# Removed @tf.function because DAAConfig is a Python dataclass and TensorFlow 2.20+ may fail to trace it.
 def eval_step(model: DeepAA, x, y, cfg: DAAConfig):
     out = model(x, training=False)
     rec = tf.reduce_mean(tf.reduce_sum(tf.square(x - out["x_rec"]), axis=[1, 2, 3]))
     cls = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=out["y_logits"]))
     kl = tf.reduce_mean(kl_standard_normal(out["mu"], out["logvar"]))
     at = tf.reduce_mean(tf.reduce_sum(tf.square(model.z_fixed - out["z_pred"]), axis=1))
-    entropy = -tf.reduce_mean(tf.reduce_sum(out["a"] * tf.math.log(out["a"] + 1e-8), axis=1))
-    total = cfg.recon_w * rec + cfg.class_w * cls + cfg.kl_w * kl + cfg.at_w * at + cfg.a_entropy_w * entropy
+    total = cfg.recon_w * rec + cfg.class_w * cls + cfg.kl_w * kl + cfg.at_w * at
     return total, rec, cls, kl, at
 
 
@@ -516,6 +511,232 @@ def plot_latent_scatter(mus, labs, classes, out_path: Path):
     plt.close(fig)
 
 
+
+
+# -----------------------------
+# HAM10000 interpretability + table generation
+# -----------------------------
+def entropy_rows(a: np.ndarray) -> np.ndarray:
+    """Normalized entropy of archetype weights A(x). 0=single archetype, 1=uniform."""
+    eps = 1e-8
+    k = a.shape[1]
+    return -(a * np.log(a + eps)).sum(axis=1) / np.log(k)
+
+
+def gini_like_sparsity(a: np.ndarray) -> float:
+    """Simple, readable sparsity score: 1 - normalized entropy averaged over samples."""
+    return float(1.0 - entropy_rows(a).mean())
+
+
+def active_archetype_count(a: np.ndarray, threshold: float = 0.10) -> float:
+    """Average number of archetypes with at least threshold contribution per image."""
+    return float((a >= threshold).sum(axis=1).mean())
+
+
+def collect_full_outputs(model: DeepAA, ds, df: pd.DataFrame, cfg: DAAConfig, classes: list[str]):
+    """
+    Runs the trained model on a dataset and returns per-image outputs needed to prove
+    how each HAM10000 lesion type is interpreted by the archetypes.
+    """
+    rows = []
+    cursor = 0
+    for x, y in ds:
+        out = model(x, training=False)
+        x_np = x.numpy()
+        rec_np = out["x_rec"].numpy()
+        a_np = out["a"].numpy()
+        mu_np = out["mu"].numpy()
+        logits_np = out["y_logits"].numpy()
+        pred_np = logits_np.argmax(axis=1)
+        rec_mse_np = np.mean((x_np - rec_np) ** 2, axis=(1, 2, 3))
+        batch_n = x_np.shape[0]
+        batch_df = df.iloc[cursor:cursor + batch_n].reset_index(drop=True)
+        cursor += batch_n
+        for i in range(batch_n):
+            row = {
+                "image_id": Path(batch_df.loc[i, "filepath"]).stem,
+                "filepath": batch_df.loc[i, "filepath"],
+                "true_label_idx": int(y.numpy()[i]),
+                "true_label": classes[int(y.numpy()[i])],
+                "pred_label_idx": int(pred_np[i]),
+                "pred_label": classes[int(pred_np[i])],
+                "recon_mse_per_pixel": float(rec_mse_np[i]),
+                "dominant_archetype": f"A{int(np.argmax(a_np[i])) + 1}",
+                "dominant_weight": float(np.max(a_np[i])),
+                "entropy": float(entropy_rows(a_np[i:i+1])[0]),
+            }
+            for j in range(a_np.shape[1]):
+                row[f"A{j+1}_weight"] = float(a_np[i, j])
+            for j in range(mu_np.shape[1]):
+                row[f"latent_{j+1}"] = float(mu_np[i, j])
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def pairwise_archetype_distances(z_fixed: np.ndarray):
+    vals = []
+    for i in range(len(z_fixed)):
+        for j in range(i + 1, len(z_fixed)):
+            vals.append(float(np.linalg.norm(z_fixed[i] - z_fixed[j])))
+    return vals
+
+
+def save_examples_by_class_and_archetype(out_df: pd.DataFrame, run_dir: Path, img_size: int, top_n: int = 3):
+    """
+    Saves visual proofs: for every lesion type and every archetype, show real HAM10000
+    examples with the highest contribution of that archetype.
+    """
+    examples_dir = run_dir / "interpretability_examples"
+    examples_dir.mkdir(exist_ok=True)
+
+    for lesion in sorted(out_df["true_label"].unique()):
+        lesion_df = out_df[out_df["true_label"] == lesion]
+        for col in [c for c in out_df.columns if c.endswith("_weight") and c.startswith("A")]:
+            a_name = col.replace("_weight", "")
+            top = lesion_df.sort_values(col, ascending=False).head(top_n)
+            if len(top) == 0:
+                continue
+            imgs = [load_one_image_for_display(fp, img_size) for fp in top["filepath"].tolist()]
+            title = f"{lesion}: top {a_name} examples"
+            safe_lesion = lesion.replace("/", "_").replace(" ", "_")
+            save_image_grid(np.array(imgs), examples_dir / f"{safe_lesion}_{a_name}_top_examples.png", title=title, cols=top_n)
+
+
+def generate_ham10000_tables(model: DeepAA, ds, df: pd.DataFrame, classes: list[str], cfg: DAAConfig,
+                             run_dir: Path, model_name: str = "DeepAA"):
+    """
+    Produces the tables your instructor asked for: not only a single lesion type, but
+    proof of how every HAM10000 diagnosis is represented by the archetypes.
+    """
+    tables_dir = run_dir / "tables"
+    tables_dir.mkdir(exist_ok=True)
+
+    out_df = collect_full_outputs(model, ds, df.reset_index(drop=True), cfg, classes)
+    out_df.to_csv(tables_dir / "per_image_archetype_interpretation.csv", index=False)
+
+    k = model.k
+    z_fixed = model.z_fixed.numpy()
+    a_cols = [f"A{i+1}_weight" for i in range(k)]
+    A = out_df[a_cols].values
+
+    # Table 1: metrics for this run
+    test_recon_mse = float(out_df["recon_mse_per_pixel"].mean())
+    kl_vals = []
+    simplex_penalties = []
+    for x, y in ds:
+        out = model(x, training=False)
+        kl_vals.append(float(tf.reduce_mean(kl_standard_normal(out["mu"], out["logvar"])).numpy()))
+        simplex_penalties.append(float(tf.reduce_mean(tf.reduce_sum(tf.square(model.z_fixed - out["z_pred"]), axis=1)).numpy()))
+    table1 = pd.DataFrame([{
+        "Dataset": "HAM10000",
+        "Model": model_name,
+        "K": k,
+        "Recon_MSE_per_pixel_down": test_recon_mse,
+        "Recon_term": "MSE",
+        "Reg_term": "KL + simplex penalty" if model_name.lower() == "deepaa" else "simplex penalty",
+        "KL_down": float(np.mean(kl_vals)),
+        "Simplex_Penalty_down": float(np.mean(simplex_penalties)),
+        "Stability_metric": "Var(A) per archetype/class",
+        "Mean_Var_A_down": float(np.mean(np.var(A, axis=0))),
+        "Accuracy_optional": float((out_df["true_label_idx"] == out_df["pred_label_idx"]).mean()),
+    }])
+    table1.to_csv(tables_dir / "table1_reconstruction_regularization_metrics.csv", index=False)
+
+    # Instructor-focused replacement for emotion table: lesion-type archetype profiles
+    table2 = out_df.groupby("true_label")[a_cols + ["entropy", "recon_mse_per_pixel"]].mean().reset_index()
+    table2.rename(columns={"true_label": "Skin_lesion_type", "entropy": "Mean_entropy_down",
+                           "recon_mse_per_pixel": "Mean_recon_MSE_down"}, inplace=True)
+    table2["Dominant_archetype"] = table2[a_cols].idxmax(axis=1).str.replace("_weight", "", regex=False)
+    table2.to_csv(tables_dir / "table2_skin_lesion_archetype_profiles.csv", index=False)
+
+    # Table 3: class distribution per archetype, one row per archetype, columns are HAM10000 dx labels
+    table3 = pd.crosstab(out_df["dominant_archetype"], out_df["true_label"], normalize="index") * 100
+    table3 = table3.reindex([f"A{i+1}" for i in range(k)]).fillna(0).reset_index().rename(columns={"dominant_archetype": "Archetype"})
+    table3.to_csv(tables_dir / "table3_class_distribution_per_archetype_percent.csv", index=False)
+
+    # Table 4: effect of K. This run writes one row. Run K=3,5,7,9 and concatenate rows.
+    table4 = pd.DataFrame([{
+        "K": k,
+        "Recon_MSE_down": test_recon_mse,
+        "Archetype_Diversity_up": float(np.mean(pairwise_archetype_distances(z_fixed))),
+        "Entropy_down": float(out_df["entropy"].mean()),
+        "Interpretability_score_up": float(1.0 - out_df["entropy"].mean()),
+        "Note": "For final Table 4, run --latent_dim 2,4,6,8 to obtain K 3,5,7,9."
+    }])
+    table4.to_csv(tables_dir / "table4_effect_of_K_single_run.csv", index=False)
+
+    # Table 5: pairwise archetype distances
+    dists = pairwise_archetype_distances(z_fixed)
+    table5 = pd.DataFrame([{
+        "Model": model_name,
+        "K": k,
+        "Mean_Dist_up": float(np.mean(dists)),
+        "Min_Dist_up": float(np.min(dists)),
+        "Max_Dist_up": float(np.max(dists)),
+    }])
+    table5.to_csv(tables_dir / "table5_pairwise_archetype_distances.csv", index=False)
+
+    # Table 6: coefficient sparsity/simplex usage
+    table6 = pd.DataFrame([{
+        "Model": model_name,
+        "K": k,
+        "Avg_Active_Archetypes_down": active_archetype_count(A),
+        "Mean_Entropy_down": float(out_df["entropy"].mean()),
+        "Sparsity_up": gini_like_sparsity(A),
+        "Usage_Per_Archetype": "; ".join([f"A{i+1}={float((out_df['dominant_archetype'] == f'A{i+1}').mean()*100):.1f}%" for i in range(k)])
+    }])
+    table6.to_csv(tables_dir / "table6_coefficient_sparsity_simplex_usage.csv", index=False)
+
+    # Table 7: comparison row for DeepAA/AANet. AANet needs a separate baseline run.
+    table7 = pd.DataFrame([{
+        "Model": model_name,
+        "Recon_down": test_recon_mse,
+        "Stability_up": float(1.0 / (1e-8 + np.mean(np.var(A, axis=0)))),
+        "Interpretability_up": float(1.0 - out_df["entropy"].mean()),
+        "Complexity_down": int(np.sum([np.prod(v.shape) for v in model.trainable_variables])),
+        "Note": "Run the baseline with AANet/deterministic settings if a true comparison is required."
+    }])
+    table7.to_csv(tables_dir / "table7_model_comparison_single_run.csv", index=False)
+
+    # Table 8: training configuration
+    table8 = pd.DataFrame([{
+        "Model": model_name,
+        "LR": "set by --lr",
+        "Batch": "set by --batch_size",
+        "Epochs": "set by --epochs",
+        "Noise": "posterior reparameterization during training",
+        "Image_size": cfg.img_size,
+        "Loss": f"{cfg.recon_w}*MSE + {cfg.class_w}*CE + {cfg.kl_w}*KL + {cfg.at_w}*simplex"
+    }])
+    table8.to_csv(tables_dir / "table8_training_configuration_template.csv", index=False)
+
+    # Proof examples by lesion type and archetype
+    save_examples_by_class_and_archetype(out_df, run_dir, cfg.img_size, top_n=3)
+
+    # A README to tell the instructor what each proof file means
+    with open(tables_dir / "README_for_instructor.txt", "w", encoding="utf-8") as f:
+        f.write(
+            "These outputs answer the requirement: DeepAA interpretation for EVERY HAM10000 skin lesion type.\n\n"
+            "Use table2_skin_lesion_archetype_profiles.csv to show the average archetype contribution for each lesion type.\n"
+            "Use table3_class_distribution_per_archetype_percent.csv to show which lesion types each archetype mainly represents.\n"
+            "Use per_image_archetype_interpretation.csv as per-image proof: image id, true label, predicted label, reconstruction error, and all A weights.\n"
+            "Use interpretability_examples/*.png as visual proof: top real images per lesion type and archetype.\n"
+            "For K comparison, run four experiments: --latent_dim 2, --latent_dim 4, --latent_dim 6, --latent_dim 8. These correspond to K=3,5,7,9.\n"
+        )
+
+    return {
+        "per_image": out_df,
+        "table1": table1,
+        "table2": table2,
+        "table3": table3,
+        "table4": table4,
+        "table5": table5,
+        "table6": table6,
+        "table7": table7,
+        "table8": table8,
+    }
+
+
 # -----------------------------
 # Main
 # -----------------------------
@@ -537,13 +758,11 @@ def main():
     parser.add_argument("--val_frac", type=float, default=0.10)
     parser.add_argument("--test_frac", type=float, default=0.10)
 
+    # Loss weights (you can tune)
     parser.add_argument("--recon_w", type=float, default=1.0)
     parser.add_argument("--class_w", type=float, default=1.0)
     parser.add_argument("--kl_w", type=float, default=1e-2)
     parser.add_argument("--at_w", type=float, default=1.0)
-
-    parser.add_argument("--a_temp", type=float, default=0.7)
-    parser.add_argument("--a_entropy_w", type=float, default=0.05)
 
     args = parser.parse_args()
     np.random.seed(args.seed)
@@ -582,9 +801,7 @@ def main():
         recon_w=args.recon_w,
         class_w=args.class_w,
         kl_w=args.kl_w,
-        at_w=args.at_w,
-        a_temp=args.a_temp,
-        a_entropy_w=args.a_entropy_w,
+        at_w=args.at_w
     )
 
     model = DeepAA(cfg)
@@ -673,7 +890,10 @@ def main():
     out_df["label_str"] = [classes[i] for i in labs_t]
     out_df.to_csv(run_dir / "latent_codes_test.csv", index=False)
 
-    # 4) Latent traversal (only meaningful + pretty for latent_dim=2 => k=3)
+    # 4) Instructor-required HAM10000 interpretability tables and visual proof examples
+    generate_ham10000_tables(model, test_ds, test_df, classes, cfg, run_dir, model_name="DeepAA")
+
+    # 5) Latent traversal (only meaningful + pretty for latent_dim=2 => k=3)
     if cfg.latent_dim == 2:
         w = barycentric_weights_grid(n_per_axis=15)  # [N,3]
         z = w @ z_fixed[:3]  # [N,2]
