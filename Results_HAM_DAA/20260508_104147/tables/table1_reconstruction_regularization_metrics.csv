@@ -1,0 +1,2 @@
+Dataset,Model,K,Recon_MSE_per_pixel_down,Recon_term,Reg_term,KL_down,Simplex_Penalty_down,Stability_metric,Mean_Var_A_down,Accuracy_optional
+HAM10000,DeepAA,7,0.00491323134252247,MSE,KL + simplex penalty,27.029241383075714,0.6531628742814064,Var(A) per archetype/class,0.006778151514127921,0.6953046953046953

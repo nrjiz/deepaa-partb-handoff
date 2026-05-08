@@ -1,0 +1,2 @@
+Model,LR,Batch,Epochs,Noise,Image_size,Loss
+DeepAA,set by --lr,set by --batch_size,set by --epochs,posterior reparameterization during training,128,1.0*MSE + 1.0*CE + 0.01*KL + 1.0*simplex

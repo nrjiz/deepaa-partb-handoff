@@ -1,0 +1,2 @@
+K,Recon_MSE_down,Archetype_Diversity_up,Entropy_down,Interpretability_score_up,Note
+3,0.008679162221867685,1.7320508162180583,0.8976738151362277,0.10232618486377232,"For final Table 4, run --latent_dim 2,4,6,8 to obtain K 3,5,7,9."
