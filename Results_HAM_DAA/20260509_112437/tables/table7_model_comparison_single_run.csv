@@ -1,0 +1,2 @@
+Model,Recon_down,Stability_up,Interpretability_up,Complexity_down,Note
+DeepAA,0.004174529435078182,229.89758089260695,0.08375128246618235,1481860,Run the baseline with AANet/deterministic settings if a true comparison is required.
