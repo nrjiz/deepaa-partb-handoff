@@ -1,0 +1,76 @@
+{
+  "protocol_id": "archetype_stability_v1",
+  "status": "PROPOSED; PRE-REGISTERED; NOT EXECUTED",
+  "scientific_question": "When DeepAA is retrained independently on the same leak-free HAM10000 split, does it recover consistent archetypal semantics after accounting for archetype permutation?",
+  "conference_baseline_commit": "29acec505161530f9ea811534b05dd52d8df9899",
+  "conference_source_sha256": "6dbbc22f79d2f1242ae384b5468fdacaf019527114fbc248bdbaf796b245ef4d",
+  "split": {
+    "id": "PROPOSED_JOURNAL_SPLIT_V1",
+    "review_status": "PENDING SENIOR-DEVELOPER REVIEW",
+    "path": "research/splits/journal_v1",
+    "fixed_across_all_training_seeds": true,
+    "train_sha256": "4c5a8912d4235f4e91ebbe374113e9db6a9cc919b550b4020b4ce670ecd3acdf",
+    "validation_sha256": "ac7077667504fdf117d198d87fc01b0922941de37816b3d65947df917fa21deb",
+    "test_sha256": "7caad8c2d7d92510936d391a8851344d3aa15c68a66ca981c6cd382e2ddb13d7"
+  },
+  "primary_scope": {
+    "K": [5, 7],
+    "latent_dimension_rule": "K - 1",
+    "seeds": [113, 211, 307, 401, 503],
+    "runs": 10,
+    "reference_seed_per_K": 113,
+    "reference_selection": "predetermined; never selected from validation or test appearance/performance"
+  },
+  "planned_runs": [
+    {"run_id": "stability_v1_K5_seed113", "K": 5, "latent_dimension": 4, "seed": 113, "role": "reference", "status": "PLANNED"},
+    {"run_id": "stability_v1_K5_seed211", "K": 5, "latent_dimension": 4, "seed": 211, "role": "candidate", "status": "PLANNED"},
+    {"run_id": "stability_v1_K5_seed307", "K": 5, "latent_dimension": 4, "seed": 307, "role": "candidate", "status": "PLANNED"},
+    {"run_id": "stability_v1_K5_seed401", "K": 5, "latent_dimension": 4, "seed": 401, "role": "candidate", "status": "PLANNED"},
+    {"run_id": "stability_v1_K5_seed503", "K": 5, "latent_dimension": 4, "seed": 503, "role": "candidate", "status": "PLANNED"},
+    {"run_id": "stability_v1_K7_seed113", "K": 7, "latent_dimension": 6, "seed": 113, "role": "reference", "status": "PLANNED"},
+    {"run_id": "stability_v1_K7_seed211", "K": 7, "latent_dimension": 6, "seed": 211, "role": "candidate", "status": "PLANNED"},
+    {"run_id": "stability_v1_K7_seed307", "K": 7, "latent_dimension": 6, "seed": 307, "role": "candidate", "status": "PLANNED"},
+    {"run_id": "stability_v1_K7_seed401", "K": 7, "latent_dimension": 6, "seed": 401, "role": "candidate", "status": "PLANNED"},
+    {"run_id": "stability_v1_K7_seed503", "K": 7, "latent_dimension": 6, "seed": 503, "role": "candidate", "status": "PLANNED"}
+  ],
+  "training_configuration": {
+    "architecture_and_objective": "unchanged final May conference DeepAA",
+    "image_shape": [128, 128, 3],
+    "batch_size": 32,
+    "epochs": 50,
+    "optimizer": "tf.keras.optimizers.Adam",
+    "learning_rate": 0.001,
+    "early_stopping": false,
+    "checkpoint_rule": "final epoch",
+    "loss_weights": {"reconstruction": 1.0, "classification": 1.0, "KL": 0.01, "archetype_simplex": 1.0},
+    "coefficient_entropy_training_weight": 0.0,
+    "preprocessing": "JPEG RGB decode; bilinear 128x128 resize; float32 divide by 255; no augmentation",
+    "evidence_note": "Values are explicitly frozen for this proposed experiment from the final source defaults, README commands, committed table8 loss strings, and Gate 0 checkpoint evidence. Their historical status remains classified in repro/configs/conference_runs.json."
+  },
+  "alignment": {
+    "matching_data": "journal_v1 validation only",
+    "signal": "per-image archetype coefficient columns in fixed manifest order",
+    "cost": "1 - Pearson correlation(reference[:, i], candidate[:, j])",
+    "solver": "Hungarian linear assignment",
+    "fixed_vertex_euclidean_distance_allowed": false,
+    "constant_or_nearly_inactive_column_rule": "OPEN; analysis must stop for affected comparison until reviewed",
+    "preserve_raw_numbering": true,
+    "preserve_cost_matrix_and_permutation": true
+  },
+  "held_out_evaluation": {
+    "data": "journal_v1 test only after validation alignment",
+    "coefficient": ["per-lesion matched-column Pearson correlation", "per-lesion coefficient MAE", "per-lesion coefficient-vector L1 distance", "dominant-archetype agreement"],
+    "semantic": "coefficient-weighted P(dx|matched archetype), compared with base-2 Jensen-Shannon divergence",
+    "nearest_real": "top-10 test images by Euclidean distance between mu and the corresponding raw fixed vertex; matched-set Jaccard overlap plus diagnosis-distribution consistency",
+    "visual": "decode each run's raw fixed vertices deterministically, then compare after alignment; exact image-similarity metric is OPEN pending review"
+  },
+  "not_permitted_in_v1": [
+    "additional K values",
+    "additional or replacement seeds",
+    "reference selection based on appearance or metrics",
+    "matching on test data",
+    "matching by Euclidean distance between fixed simplex vertices",
+    "changing the baseline architecture or objective",
+    "silently replacing the reference rule with consensus matching"
+  ]
+}

@@ -18,12 +18,13 @@ The conference PDF/source package is not present locally. The authoritative GitH
 - Remote: `https://github.com/Amy007-ali/Deep-Archetypal-Analysis-on-HAM10000.git`.
 - Local clone: `C:\Users\UserPc\Desktop\ai\Deep-Archetypal-Analysis-on-HAM10000` (workspace fallback because the elevated clone process could not access the preferred `Documents\github` location).
 - Branch: `main`; only `main`, `origin/main`, and the `origin/HEAD -> origin/main` symbolic reference are present.
-- HEAD: `29acec505161530f9ea811534b05dd52d8df9899`, authored and committed `2026-05-09T15:15:47+03:00`, subject `adding results for K=9`.
+- Working conference baseline revision: `29acec505161530f9ea811534b05dd52d8df9899`, authored and committed `2026-05-09T15:15:47+03:00`, subject `adding results for K=9`.
+- Project HEAD at the start of Gate 1 preparation: `fee4e0bfd5b5978f0a4f888aca3293d4f72638aa`, subject `repro: establish and verify DATA 2026 baseline`. This later project commit does not redefine the preserved conference baseline.
 - Tags: none.
 - History: seven commits from 2026-01-10 through 2026-05-09. The May sequence adds result bundles for K=5 (`661cc7f`), K=3 and K=7 (`6dd8154`), then K=9 (`29acec5`).
 - The model source and README are byte-identical from `661cc7f` through HEAD; the last two commits add results only.
 
-**Baseline assessment:** the senior developer has designated HEAD as the working conference baseline. Confidence is high because it contains the TensorFlow/Keras variational source, all four published-result bundles, and checkpoints that reproduce every checked committed metric. Provenance is not formally certain because there is no conference tag/release, submitted archive, exact invocation log, or author confirmation.
+**Baseline assessment:** the senior developer has designated `29acec5` as the working conference baseline. Confidence is high because it contains the TensorFlow/Keras variational source, all four published-result bundles, and checkpoints that reproduce every checked committed metric. Provenance is not formally certain because there is no conference tag/release, submitted archive, exact invocation log, or author confirmation.
 
 Committed artifact matches:
 
@@ -48,6 +49,18 @@ Gate 0 is **PASS WITH DOCUMENTED LIMITATIONS** as of 2026-09-03.
 - The baseline invariant script passed 30/30 checks without training.
 - The final May baseline has no coefficient entropy/temperature training objective. Entropy and `1 - entropy` sparsity are post-training evaluations only.
 
+## GATE 1 PREPARATION STATUS
+
+Gate 1 is **PREPARED; NOT APPROVED FOR TRAINING** as of 2026-09-03.
+
+- All 10,015 metadata rows have unique `image_id`, non-missing `lesion_id`, and diagnosis labels consistent within lesions; zero lesion IDs have multiple `dx` values.
+- `PROPOSED JOURNAL SPLIT V1` was generated once using `StratifiedGroupKFold(n_splits=10, shuffle=True, random_state=113)`, grouped by `lesion_id` and stratified by `dx`. Fold 0 is test, fold 1 validation, and folds 2–9 train; no alternative seed/fold search was performed.
+- Proposed counts are 8,011/1,002/1,002 images and 5,975/747/748 lesions for train/validation/test. All seven diagnoses occur in each partition, every image occurs exactly once, and every pairwise lesion overlap is zero. All 17 split invariants passed.
+- The historical split remains unchanged under `repro/`; the proposed split and comparison are under `research/splits/journal_v1/`.
+- `archetype_stability_v1` is pre-registered but not executed: K=`{5,7}`, seeds=`{113,211,307,401,503}`, ten planned runs, seed 113 reference within each K, validation-only Hungarian matching, and test-only stability evaluation.
+- The planned architecture/objective remains the final May baseline. Planned explicit values are 128×128 RGB, batch 32, 50 epochs, Adam at 0.001, final-epoch checkpoint, and loss weights `1/1/0.01/1`; coefficient entropy remains evaluation-only.
+- Local TensorFlow 2.21 sees no GPU. The machine has 8 logical CPU threads and about 12.75 GiB free disk, making ten full local CPU runs impractical without additional resources.
+
 ## CURRENT JOURNAL PROPOSALS
 
 These are planned investigations, not findings:
@@ -70,8 +83,10 @@ These are planned investigations, not findings:
 
 - Seek author/coauthor confirmation that working baseline HEAD `29acec505161530f9ea811534b05dd52d8df9899` is the submitted conference snapshot, or preserve any contrary evidence if found.
 - Recover exact commands/configurations for the four May runs if archival records exist; currently inferred fields and their evidence are explicit in `repro/configs/conference_runs.json`.
-- Decide whether stability uses one canonical reference run or a consensus reference, which seeds are required, and how ties/constant activation columns are handled in correlation costs.
-- Decide whether split generation is lesion-grouped as well as diagnosis-stratified; this is strongly indicated because HAM10000 has 10,015 images but 7,470 lesion IDs.
+- Review and accept or reject `PROPOSED JOURNAL SPLIT V1`; do not train against it until reviewed.
+- Approve a definition and fallback for constant or nearly inactive coefficient columns in Hungarian matching. Seed 113 and the primary seed/K matrix are already pre-registered as proposed parameters.
+- Select the decoded-archetype visual similarity metric and uncertainty/interval method before stability results are calculated.
+- Review manifest-aware data loading, deterministic controls, overwrite protection, and synthetic permutation tests before launching stability training.
 - Select the local-refinement objective, parameters, optimizer, learning rate, constraints, stopping rule, and runtime protocol after the authoritative model is available.
 - Resolve whether simplex relaxation changes the target of the archetype regularizer from `Z_fixed` to `Z_delta`, changes the regularizer itself, or uses another approved formulation.
 - Decide whether radial scale parameters need an identifiability/normalization constraint beyond the interval bound.
@@ -80,7 +95,7 @@ These are planned investigations, not findings:
 
 ## BLOCKERS
 
-- Repository-local `docs/` is canonical but remains untracked pending senior-developer review; the original external docs copy is intentionally retained.
+- Repository-local `docs/` is canonical; the original external docs copy is intentionally retained.
 - Conference tag/release, paper source/PDF, submitted-code archive, and explicit author confirmation of the baseline commit are absent.
 - Exact historical run commands, environment lock, and training histories are absent. Gate 0 now provides a current reproduction freeze, saved historical split manifests, evidence-classified run configuration, and no-training invariant checks under `repro/`; these are new preservation records, not recovered historical files.
 - The current source uses per-image class-stratified splitting rather than grouping by `lesion_id`; repeated lesions cross partitions. The historical membership and quantified overlap are now persisted under `repro/splits/conference_image_level`.
@@ -151,8 +166,8 @@ No download is needed now. If reacquisition is needed later, the official ISIC 2
 - The historical authoritative repository had no automated tests. Gate 0 adds a standalone 30-check baseline invariant script under `repro/tools/`; it requires no retraining.
 - The earlier PyTorch HAM implementation has no README or dependency/environment file. Imports imply Python, NumPy, pandas, Pillow, tqdm, PyTorch, scikit-learn, and Matplotlib.
 - The faithful JAFFE directory has a five-package `requirements.txt` but does not list scikit-learn because it is not used there.
-- There were no existing docs in the writable workspace to preserve.
+- The repository-local documentation knowledge base is now preserved under `docs/`; the external source copy is retained separately.
 
 ## NEXT ACTION
 
-Gate 0 preservation and evaluation-only reproduction are complete with documented limitations. Before journal model changes or training, review the new `repro/` evidence, obtain the conference PDF/source and author confirmation if available, approve a separate lesion-grouped journal split policy, and complete Gate 1 design decisions. Do not rewrite the historical baseline or treat proposed journal hypotheses as findings.
+Review the proposed journal_v1 statistics and hashes. Before training, approve the inactive-column alignment rule and visual metric, implement/review manifest-aware and deterministic training infrastructure without modifying the historical source, add synthetic assignment tests and overwrite protection, and resolve local-vs-external compute. Do not run stability experiments until those Gate 1 blockers are cleared.

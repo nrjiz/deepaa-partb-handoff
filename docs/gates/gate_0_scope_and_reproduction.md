@@ -6,13 +6,13 @@ Status: **PASS WITH DOCUMENTED LIMITATIONS**.
 
 - Authoritative remote: `https://github.com/Amy007-ali/Deep-Archetypal-Analysis-on-HAM10000.git`.
 - Clone: `C:\Users\UserPc\Desktop\ai\Deep-Archetypal-Analysis-on-HAM10000`.
-- Branch/HEAD: `main` at `29acec505161530f9ea811534b05dd52d8df9899` (`2026-05-09T15:15:47+03:00`, `adding results for K=9`).
+- Working conference baseline: `main` revision `29acec505161530f9ea811534b05dd52d8df9899` (`2026-05-09T15:15:47+03:00`, `adding results for K=9`). Later preservation commits do not redefine this baseline.
 - No tags and no alternative branches exist in the fetched repository.
 - HEAD implements TensorFlow 2/Keras probabilistic DeepAA: softmax `a`, fixed regular `Z_fixed`, `mu = a @ Z_fixed`, learned `logvar`, training-time reparameterization, RGB decoder, classification head, KL loss, and batch archetype/simplex loss.
 - Four committed May result bundles match the published rounded K=3/5/7/9 metrics, including entropy, sparsity, and coefficient variance.
 - The source and README have not changed from commit `661cc7f` through HEAD; commits `6dd8154` and `29acec5` add results only.
 
-Assessment: **HEAD is the approved high-confidence working conference baseline, but is not formally proven to be the submitted snapshot.** Exact numerical matching, reconstructed split order, and checkpoint evaluation are sufficient to proceed while retaining the provenance limitation.
+Assessment: **Revision `29acec5` is the approved high-confidence working conference baseline, but is not formally proven to be the submitted snapshot.** Exact numerical matching, reconstructed split order, and checkpoint evaluation are sufficient to proceed while retaining the provenance limitation.
 
 ## Reproduction completed on 2026-09-03
 

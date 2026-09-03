@@ -1,0 +1,195 @@
+{
+  "algorithm": {
+    "assignment": {
+      "test": [
+        0
+      ],
+      "train": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "validation": [
+        1
+      ]
+    },
+    "class": "sklearn.model_selection.StratifiedGroupKFold",
+    "group": "lesion_id",
+    "n_splits": 10,
+    "random_state": 113,
+    "selection_note": "Predetermined rule; no seed or fold search was performed.",
+    "shuffle": true,
+    "stratification_target": "dx"
+  },
+  "class_distribution_sha256": "3dca323b8e01797c90f4cd382f9729948e51df11a3712929fc0f8eb9dd209143",
+  "classes": [
+    "akiec",
+    "bcc",
+    "bkl",
+    "df",
+    "mel",
+    "nv",
+    "vasc"
+  ],
+  "dataset": "HAM10000",
+  "fold_assignments_sha256": "c0a3672afe2b7e1d098df9a6ed08a4e92b5b62ae0f8e352d43a7b41748b816a2",
+  "fold_image_counts": {
+    "0": 1002,
+    "1": 1002,
+    "2": 1002,
+    "3": 1002,
+    "4": 1002,
+    "5": 1001,
+    "6": 1001,
+    "7": 1001,
+    "8": 1001,
+    "9": 1001
+  },
+  "fold_lesion_counts": {
+    "0": 748,
+    "1": 747,
+    "2": 747,
+    "3": 748,
+    "4": 747,
+    "5": 746,
+    "6": 747,
+    "7": 747,
+    "8": 747,
+    "9": 746
+  },
+  "generator_environment": {
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "python": "3.13.3",
+    "scikit_learn": "1.8.0"
+  },
+  "image_counts": {
+    "test": 1002,
+    "train": 8011,
+    "validation": 1002
+  },
+  "image_inventory": {
+    "available_ids_absent_from_metadata": 0,
+    "available_jpg_ids": 10015,
+    "duplicate_ids_across_image_dirs": 0,
+    "metadata_ids_missing_files": 0
+  },
+  "image_percent": {
+    "test": 10.00499251123315,
+    "train": 79.9900149775337,
+    "validation": 10.00499251123315
+  },
+  "invariant_totals": {
+    "failed": 0,
+    "passed": 17
+  },
+  "invariants": [
+    {
+      "check": "metadata_row_count",
+      "details": "actual=10015",
+      "status": "PASS"
+    },
+    {
+      "check": "metadata_image_id_unique",
+      "details": "unique=10015",
+      "status": "PASS"
+    },
+    {
+      "check": "every_image_exactly_once",
+      "details": "combined_rows=10015; unique=10015",
+      "status": "PASS"
+    },
+    {
+      "check": "no_images_lost",
+      "details": "missing=0",
+      "status": "PASS"
+    },
+    {
+      "check": "no_unknown_images_in_manifests",
+      "details": "unknown=0",
+      "status": "PASS"
+    },
+    {
+      "check": "all_metadata_images_available",
+      "details": "missing_files=0",
+      "status": "PASS"
+    },
+    {
+      "check": "no_unknown_available_image_files",
+      "details": "extra_files=0",
+      "status": "PASS"
+    },
+    {
+      "check": "no_duplicate_image_files_across_sources",
+      "details": "duplicate_file_ids=0",
+      "status": "PASS"
+    },
+    {
+      "check": "image_ids_disjoint_train_validation",
+      "details": "overlap=0",
+      "status": "PASS"
+    },
+    {
+      "check": "lesion_ids_disjoint_train_validation",
+      "details": "overlap=0",
+      "status": "PASS"
+    },
+    {
+      "check": "image_ids_disjoint_train_test",
+      "details": "overlap=0",
+      "status": "PASS"
+    },
+    {
+      "check": "lesion_ids_disjoint_train_test",
+      "details": "overlap=0",
+      "status": "PASS"
+    },
+    {
+      "check": "image_ids_disjoint_validation_test",
+      "details": "overlap=0",
+      "status": "PASS"
+    },
+    {
+      "check": "lesion_ids_disjoint_validation_test",
+      "details": "overlap=0",
+      "status": "PASS"
+    },
+    {
+      "check": "all_classes_represented_train",
+      "details": "missing=[]",
+      "status": "PASS"
+    },
+    {
+      "check": "all_classes_represented_validation",
+      "details": "missing=[]",
+      "status": "PASS"
+    },
+    {
+      "check": "all_classes_represented_test",
+      "details": "missing=[]",
+      "status": "PASS"
+    }
+  ],
+  "lesion_counts": {
+    "test": 748,
+    "train": 5975,
+    "validation": 747
+  },
+  "lesion_ids_with_multiple_dx": 0,
+  "manifest_sha256": {
+    "test.csv": "7caad8c2d7d92510936d391a8851344d3aa15c68a66ca981c6cd382e2ddb13d7",
+    "train.csv": "4c5a8912d4235f4e91ebbe374113e9db6a9cc919b550b4020b4ce670ecd3acdf",
+    "validation.csv": "ac7077667504fdf117d198d87fc01b0922941de37816b3d65947df917fa21deb"
+  },
+  "metadata_rows": 10015,
+  "metadata_sha256": "06aee5e603d313ba69de38263053c792a1dff030eb9c44a96ceb477ceefb99a5",
+  "review_status": "PENDING SENIOR-DEVELOPER REVIEW",
+  "status": "PROPOSED JOURNAL SPLIT V1",
+  "unique_image_ids": 10015,
+  "unique_lesion_ids": 7470
+}

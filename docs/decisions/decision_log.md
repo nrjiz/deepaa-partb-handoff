@@ -86,3 +86,35 @@ Allowed statuses: **PROPOSED**, **ACCEPTED**, **REJECTED**, **SUPERSEDED**.
 - Status: ACCEPTED
 - Decision: The working May conference baseline has no coefficient-entropy stabilization or temperature objective during training. Entropy is evaluation-only.
 - Evidence: Authoritative May source and January-to-May Git diff.
+
+## D-013 — Proposed journal split v1
+
+- Date: 2026-09-03
+- Status: PROPOSED
+- Decision: For all new research, use `StratifiedGroupKFold(n_splits=10, shuffle=True, random_state=113)` with `lesion_id` groups and `dx` stratification; assign fold 0 to test, fold 1 to validation, and folds 2–9 to train.
+- Anti-cherry-picking rule: Do not search seeds or reassign folds for better class balance.
+- Evidence: Generated manifests cover all 10,015 images exactly once, contain all seven classes in every partition, and have zero pairwise lesion overlap.
+- Review state: `PROPOSED JOURNAL SPLIT V1`; senior-developer acceptance is required before training.
+
+## D-014 — Stability v1 primary scope
+
+- Date: 2026-09-03
+- Status: PROPOSED
+- Decision: Restrict the first stability experiment to K=`{5,7}` and seeds=`{113,211,307,401,503}`, for ten primary runs on one fixed journal_v1 split.
+- Configuration: Preserve the final conference architecture and objective; explicitly use 128×128 RGB, batch 32, 50 epochs, Adam at 0.001, loss weights `1/1/0.01/1`, and final-epoch checkpoints.
+- Constraint: No additional seeds or K values belong to the primary v1 experiment without a dated protocol amendment.
+
+## D-015 — Predetermined stability reference and data separation
+
+- Date: 2026-09-03
+- Status: PROPOSED
+- Decision: Use seed 113 as the predetermined reference independently for each K. Learn Hungarian permutations from validation coefficient-activation signatures with cost `1 - Pearson correlation`; measure final stability only on test.
+- Prohibited criterion: Do not align semantics using Euclidean distance between identical fixed simplex vertices.
+- Preservation: Retain raw archetype numbering, cost matrices, learned permutations, and aligned derivatives.
+- Separate future analysis: Consensus matching may be studied later but must not silently replace this primary reference rule.
+
+## D-016 — Unstable correlation columns remain unresolved
+
+- Date: 2026-09-03
+- Status: PROPOSED
+- Decision: Do not silently substitute a matching cost when a coefficient column is constant or nearly inactive. Preserve and flag the affected matrix, then stop that comparison until a threshold and fallback are reviewed.

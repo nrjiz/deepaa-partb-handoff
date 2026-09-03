@@ -10,6 +10,8 @@ Can DeepAA's simplex-constrained archetypal representation for medical images be
 
 After accounting for permutation of archetype identities, how stable are decoded archetypes, nearest real examples, per-lesion coefficients, usage, and semantic enrichment across independent training seeds?
 
+The proposed first test is pre-registered as `archetype_stability_v1`: K=`{5,7}`, seeds=`{113,211,307,401,503}`, seed 113 as the predetermined reference within each K, validation-only activation-signature Hungarian matching, and test-only stability evaluation. All ten runs will use the same proposed lesion-grouped `journal_v1` split. This is a protocol, not a finding.
+
 ### RQ2 — Amortized inference reliability
 
 On held-out images, how much does the frozen model objective improve when local inference parameters initialized by the encoder are optimized directly, and what accuracy/runtime trade-off appears after 1, 3, and 5 steps?
@@ -31,4 +33,3 @@ Can counterfactual search in the validated simplex-coordinate space produce succ
 - **H5:** Reliability dimensions will interact: unstable archetypes or a large amortization gap will weaken the meaning of coordinate-level counterfactuals.
 
 These hypotheses are preregistered expectations. They must be retained, revised with dated justification, or rejected based on held-out evidence; they must never be written as completed results before experiments run.
-

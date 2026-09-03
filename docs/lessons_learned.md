@@ -22,3 +22,10 @@
 - The historical image-level split is image-ID disjoint yet lesion-ID overlapping: 725 lesion IDs and 1,737 images cross at least one partition boundary.
 - The final May source must not inherit January entropy/temperature training logic merely because that logic exists in repository history.
 - Reproduction environment provenance and historical environment provenance are different claims; the former can be frozen now while the latter remains unknown.
+- A grouped stratifier can preserve diagnosis proportions closely while enforcing zero cross-partition lesion overlap; the resulting counts need not be exactly the same as an image-level 80/10/10 split.
+- Split selection should be predetermined before inspecting balance. Generating many seeds and choosing the neatest class table would introduce avoidable split-selection bias.
+- Training seeds must change initialization, shuffle, and posterior-sampling streams without regenerating the dataset split.
+- Fixed-seed reproducibility requires explicit dataset-shuffle seeding and deterministic-operation controls in addition to NumPy and TensorFlow global seeds.
+- Validation data may define an archetype permutation, but stability reported as final evidence must be computed on test data.
+- A correlation-based assignment has a genuine undefined edge case for constant activation columns; silently inventing a fallback after seeing runs would weaken the preregistration.
+- CPU-only TensorFlow plus low disk headroom can be adequate for evaluation and protocol checks but unsuitable for a ten-run training plan.
