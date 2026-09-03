@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "scientific_evidence": false,
+  "output_directory": "research/smoke_tests/gate1_pipeline_final_20260903",
+  "K": 5,
+  "seed": 113,
+  "epochs": 1,
+  "train_batches": 1,
+  "full_manifest_hashes_verified": true,
+  "fresh_process_wrapper_validated": true,
+  "deterministic_ops_enabled": true,
+  "rows_used_per_partition": 32,
+  "model_instantiated": true,
+  "training_step_completed": true,
+  "evaluation_completed": true,
+  "validation_coefficients_exported": true,
+  "test_coefficients_exported": true,
+  "decoded_archetypes_exported": true,
+  "nearest_real_identities_exported": true,
+  "checkpoint_saved": true,
+  "checkpoint_reloaded": true,
+  "maximum_checkpoint_weight_difference": 0.0,
+  "completion_marker_present": true,
+  "artifact_inventory_present": true,
+  "determinism_warnings": [],
+  "operational_console_notes": [
+    "Native-Windows TensorFlow reported CPU-only execution as expected.",
+    "Matplotlib could not write its user font-cache lock; the smoke required no plot output and completed successfully."
+  ],
+  "baseline_source_sha256_before": "6dbbc22f79d2f1242ae384b5468fdacaf019527114fbc248bdbaf796b245ef4d",
+  "baseline_source_sha256_after": "6dbbc22f79d2f1242ae384b5468fdacaf019527114fbc248bdbaf796b245ef4d",
+  "note": "Metric values from this tiny one-step run are deliberately excluded from scientific reporting."
+}

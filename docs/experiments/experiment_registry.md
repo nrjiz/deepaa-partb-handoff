@@ -41,9 +41,9 @@ status: "PLANNED"  # PLANNED | RUNNING | COMPLETED | FAILED | EXCLUDED
 
 Add newest entries below this heading. A `COMPLETED` status means artifacts exist and checks passed; it does not mean a hypothesis was supported.
 
-### Proposed archetype_stability_v1 matrix
+### Accepted archetype_stability_v1 matrix
 
-Protocol only; no run has started. All entries use proposed split `journal_v1`, 128×128 RGB input, batch 32, 50 epochs, Adam at 0.001, baseline loss weights `1/1/0.01/1`, and no early stopping. Seed 113 is the predetermined reference within each K.
+Protocol only; no primary run has started. All entries use accepted immutable split `journal_v1`, 128×128 RGB input, batch 32, 50 epochs, Adam at 0.001, baseline loss weights `1/1/0.01/1`, and no early stopping. Seed 113 is the predetermined reference within each K.
 
 | Experiment ID | K | Latent dimension | Seed | Role | Status |
 |---|---:|---:|---:|---|---|
@@ -59,3 +59,7 @@ Protocol only; no run has started. All entries use proposed split `journal_v1`, 
 | `stability_v1_K7_seed503` | 7 | 6 | 503 | candidate | PLANNED |
 
 The machine-readable source of this matrix is `research/configs/archetype_stability_v1.json`. Before any run changes to RUNNING, enter the actual implementation commit manually, verify split hashes, and create a unique non-overwriting output directory.
+
+### Gate 1 pipeline smoke
+
+`gate1_pipeline_20260903` completed one epoch over at most 32 rows per partition at K=5, seed 113. It verified manifest loading, one training step, evaluation, coefficient/latent/decoded/nearest exports, checkpoint save and exact reload, completion marking, and unchanged protected-source hashes. It is labeled `scientific_evidence: false`; no metric from it is a stability result. The tracked summary is `research/smoke_tests/gate1_smoke_summary.json`.

@@ -1,17 +1,18 @@
 {
   "protocol_id": "archetype_stability_v1",
-  "status": "PROPOSED; PRE-REGISTERED; NOT EXECUTED",
+  "status": "ACCEPTED; PRE-REGISTERED; NOT EXECUTED",
   "scientific_question": "When DeepAA is retrained independently on the same leak-free HAM10000 split, does it recover consistent archetypal semantics after accounting for archetype permutation?",
   "conference_baseline_commit": "29acec505161530f9ea811534b05dd52d8df9899",
   "conference_source_sha256": "6dbbc22f79d2f1242ae384b5468fdacaf019527114fbc248bdbaf796b245ef4d",
   "split": {
-    "id": "PROPOSED_JOURNAL_SPLIT_V1",
-    "review_status": "PENDING SENIOR-DEVELOPER REVIEW",
+    "id": "journal_v1",
+    "review_status": "ACCEPTED BY SENIOR DEVELOPER 2026-09-03",
     "path": "research/splits/journal_v1",
     "fixed_across_all_training_seeds": true,
     "train_sha256": "4c5a8912d4235f4e91ebbe374113e9db6a9cc919b550b4020b4ce670ecd3acdf",
     "validation_sha256": "ac7077667504fdf117d198d87fc01b0922941de37816b3d65947df917fa21deb",
-    "test_sha256": "7caad8c2d7d92510936d391a8851344d3aa15c68a66ca981c6cd382e2ddb13d7"
+    "test_sha256": "7caad8c2d7d92510936d391a8851344d3aa15c68a66ca981c6cd382e2ddb13d7",
+    "replacement_rule": "Never mutate journal_v1; any replacement must be a new journal_v2 protocol and directory."
   },
   "primary_scope": {
     "K": [5, 7],
@@ -53,7 +54,8 @@
     "cost": "1 - Pearson correlation(reference[:, i], candidate[:, j])",
     "solver": "Hungarian linear assignment",
     "fixed_vertex_euclidean_distance_allowed": false,
-    "constant_or_nearly_inactive_column_rule": "OPEN; analysis must stop for affected comparison until reviewed",
+    "degeneracy_threshold_population_std": 1e-8,
+    "constant_or_nearly_inactive_column_rule": "If either validation column has population standard deviation <= 1e-8, use fallback cost 2 * mean absolute error for that pair; otherwise use 1 - Pearson correlation.",
     "preserve_raw_numbering": true,
     "preserve_cost_matrix_and_permutation": true
   },
@@ -62,7 +64,9 @@
     "coefficient": ["per-lesion matched-column Pearson correlation", "per-lesion coefficient MAE", "per-lesion coefficient-vector L1 distance", "dominant-archetype agreement"],
     "semantic": "coefficient-weighted P(dx|matched archetype), compared with base-2 Jensen-Shannon divergence",
     "nearest_real": "top-10 test images by Euclidean distance between mu and the corresponding raw fixed vertex; matched-set Jaccard overlap plus diagnosis-distribution consistency",
-    "visual": "decode each run's raw fixed vertices deterministically, then compare after alignment; exact image-similarity metric is OPEN pending review"
+    "visual": "decode each run's raw fixed vertices deterministically; after alignment use RGB SSIM with explicit data range 1.0 as primary and pixel MSE as secondary",
+    "aggregation": "For the four reference-versus-candidate comparisons within each K, report every raw value plus arithmetic mean, sample standard deviation, minimum, and maximum; no confidence interval is inferred from four training seeds.",
+    "lesion_bootstrap": "For lesion-level coefficient-vector L1 distance and dominant-archetype agreement, use 1000 paired lesion resamples with replacement, seed 2026, and a two-sided percentile 95% interval."
   },
   "not_permitted_in_v1": [
     "additional K values",

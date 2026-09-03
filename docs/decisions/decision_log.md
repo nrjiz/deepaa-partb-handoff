@@ -12,10 +12,10 @@ Allowed statuses: **PROPOSED**, **ACCEPTED**, **REJECTED**, **SUPERSEDED**.
 ## D-002 — Activation-signature alignment
 
 - Date: 2026-09-02
-- Status: PROPOSED
+- Status: SUPERSEDED
 - Decision: Align independent runs with Hungarian assignment using validation/reference coefficient-activation correlations.
 - Rationale: `Z_fixed` locations are predetermined and contain no run-specific semantic identity.
-- Open: fallback costs, reference selection, and constant columns.
+- Superseded by: D-015 and D-016, which accept the reference rule, separation, threshold, and fallback.
 
 ## D-003 — No diagnosis-label signal in amortization refinement
 
@@ -46,9 +46,10 @@ Allowed statuses: **PROPOSED**, **ACCEPTED**, **REJECTED**, **SUPERSEDED**.
 ## D-007 — Lesion-grouped split
 
 - Date: 2026-09-02
-- Status: PROPOSED
+- Status: ACCEPTED
 - Decision: Replace image-level splitting with a persisted lesion-grouped, diagnosis-stratified split for journal experiments.
 - Rationale: multiple HAM10000 images can share a `lesion_id`; cross-partition lesion overlap risks leakage.
+- Implemented by: D-013 and immutable `research/splits/journal_v1` manifests.
 
 ## D-008 — Authoritative baseline identity
 
@@ -87,19 +88,20 @@ Allowed statuses: **PROPOSED**, **ACCEPTED**, **REJECTED**, **SUPERSEDED**.
 - Decision: The working May conference baseline has no coefficient-entropy stabilization or temperature objective during training. Entropy is evaluation-only.
 - Evidence: Authoritative May source and January-to-May Git diff.
 
-## D-013 — Proposed journal split v1
+## D-013 — Accepted journal split v1
 
 - Date: 2026-09-03
-- Status: PROPOSED
+- Status: ACCEPTED
 - Decision: For all new research, use `StratifiedGroupKFold(n_splits=10, shuffle=True, random_state=113)` with `lesion_id` groups and `dx` stratification; assign fold 0 to test, fold 1 to validation, and folds 2–9 to train.
 - Anti-cherry-picking rule: Do not search seeds or reassign folds for better class balance.
 - Evidence: Generated manifests cover all 10,015 images exactly once, contain all seven classes in every partition, and have zero pairwise lesion overlap.
-- Review state: `PROPOSED JOURNAL SPLIT V1`; senior-developer acceptance is required before training.
+- Review state: Accepted explicitly by the senior developer on 2026-09-03.
+- Immutability: Never mutate or overwrite `journal_v1`. Any replacement requires a separately reviewed `journal_v2` directory and protocol amendment.
 
 ## D-014 — Stability v1 primary scope
 
 - Date: 2026-09-03
-- Status: PROPOSED
+- Status: ACCEPTED
 - Decision: Restrict the first stability experiment to K=`{5,7}` and seeds=`{113,211,307,401,503}`, for ten primary runs on one fixed journal_v1 split.
 - Configuration: Preserve the final conference architecture and objective; explicitly use 128×128 RGB, batch 32, 50 epochs, Adam at 0.001, loss weights `1/1/0.01/1`, and final-epoch checkpoints.
 - Constraint: No additional seeds or K values belong to the primary v1 experiment without a dated protocol amendment.
@@ -107,14 +109,30 @@ Allowed statuses: **PROPOSED**, **ACCEPTED**, **REJECTED**, **SUPERSEDED**.
 ## D-015 — Predetermined stability reference and data separation
 
 - Date: 2026-09-03
-- Status: PROPOSED
+- Status: ACCEPTED
 - Decision: Use seed 113 as the predetermined reference independently for each K. Learn Hungarian permutations from validation coefficient-activation signatures with cost `1 - Pearson correlation`; measure final stability only on test.
 - Prohibited criterion: Do not align semantics using Euclidean distance between identical fixed simplex vertices.
 - Preservation: Retain raw archetype numbering, cost matrices, learned permutations, and aligned derivatives.
 - Separate future analysis: Consensus matching may be studied later but must not silently replace this primary reference rule.
 
-## D-016 — Unstable correlation columns remain unresolved
+## D-016 — Deterministic fallback for degenerate alignment columns
 
 - Date: 2026-09-03
-- Status: PROPOSED
-- Decision: Do not silently substitute a matching cost when a coefficient column is constant or nearly inactive. Preserve and flag the affected matrix, then stop that comparison until a threshold and fallback are reviewed.
+- Status: ACCEPTED
+- Decision: Treat a validation coefficient column as degenerate when its population standard deviation is at most `1e-8`. For a pair in which either column is degenerate, use `2 * MAE` as the Hungarian cost; otherwise use `1 - Pearson correlation`.
+- Rationale: The fallback is deterministic and finite for constant columns, and the factor of two gives the same bounded `[0,2]` scale as correlation cost for simplex coefficients.
+- Preservation: Save both the full cost matrix and the per-cell method matrix.
+
+## D-017 — Stability visual metric
+
+- Date: 2026-09-03
+- Status: ACCEPTED
+- Decision: Compare aligned decoded archetypes using RGB SSIM as the primary metric with explicit data range 1.0; report pixel MSE as a secondary metric.
+- Constraint: Decode each run's raw fixed vertices deterministically and apply the validation-learned permutation only to derived comparisons.
+
+## D-018 — Stability aggregation and uncertainty
+
+- Date: 2026-09-03
+- Status: ACCEPTED
+- Decision: Within each K, retain all four seed-113-versus-candidate values and summarize them using arithmetic mean, sample standard deviation, minimum, and maximum. Do not infer a confidence interval from four training seeds.
+- Lesion uncertainty: For lesion-level coefficient-vector L1 distance and dominant-archetype agreement, use 1,000 paired lesion bootstrap resamples with replacement, seed 2026, and a two-sided percentile 95% interval.

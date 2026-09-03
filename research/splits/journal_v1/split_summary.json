@@ -188,8 +188,9 @@
   },
   "metadata_rows": 10015,
   "metadata_sha256": "06aee5e603d313ba69de38263053c792a1dff030eb9c44a96ceb477ceefb99a5",
-  "review_status": "PENDING SENIOR-DEVELOPER REVIEW",
-  "status": "PROPOSED JOURNAL SPLIT V1",
+  "replacement_rule": "Never alter journal_v1; any replacement requires separately versioned journal_v2 and explicit senior-developer acceptance.",
+  "review_status": "ACCEPTED BY SENIOR DEVELOPER 2026-09-03",
+  "status": "ACCEPTED JOURNAL SPLIT V1; IMMUTABLE",
   "unique_image_ids": 10015,
   "unique_lesion_ids": 7470
 }

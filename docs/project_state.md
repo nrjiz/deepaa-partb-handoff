@@ -19,7 +19,7 @@ The conference PDF/source package is not present locally. The authoritative GitH
 - Local clone: `C:\Users\UserPc\Desktop\ai\Deep-Archetypal-Analysis-on-HAM10000` (workspace fallback because the elevated clone process could not access the preferred `Documents\github` location).
 - Branch: `main`; only `main`, `origin/main`, and the `origin/HEAD -> origin/main` symbolic reference are present.
 - Working conference baseline revision: `29acec505161530f9ea811534b05dd52d8df9899`, authored and committed `2026-05-09T15:15:47+03:00`, subject `adding results for K=9`.
-- Project HEAD at the start of Gate 1 preparation: `fee4e0bfd5b5978f0a4f888aca3293d4f72638aa`, subject `repro: establish and verify DATA 2026 baseline`. This later project commit does not redefine the preserved conference baseline.
+- Project HEAD at the start of Gate 1 infrastructure implementation: `feafd3ac0a0837a5d58ebd3c121064a51f8e03d3`, subject `research: freeze lesion-grouped split and stability protocol`. This later project commit does not redefine the preserved conference baseline.
 - Tags: none.
 - History: seven commits from 2026-01-10 through 2026-05-09. The May sequence adds result bundles for K=5 (`661cc7f`), K=3 and K=7 (`6dd8154`), then K=9 (`29acec5`).
 - The model source and README are byte-identical from `661cc7f` through HEAD; the last two commits add results only.
@@ -49,17 +49,19 @@ Gate 0 is **PASS WITH DOCUMENTED LIMITATIONS** as of 2026-09-03.
 - The baseline invariant script passed 30/30 checks without training.
 - The final May baseline has no coefficient entropy/temperature training objective. Entropy and `1 - entropy` sparsity are post-training evaluations only.
 
-## GATE 1 PREPARATION STATUS
+## GATE 1 INFRASTRUCTURE STATUS
 
-Gate 1 is **PREPARED; NOT APPROVED FOR TRAINING** as of 2026-09-03.
+Gate 1 is **READY FOR PRIMARY TRAINING** as of 2026-09-03. The suite passed 27/27 tests, the non-scientific smoke passed, and the matrix dry-run emitted the exact ten commands without execution. No primary run has been executed.
 
 - All 10,015 metadata rows have unique `image_id`, non-missing `lesion_id`, and diagnosis labels consistent within lesions; zero lesion IDs have multiple `dx` values.
-- `PROPOSED JOURNAL SPLIT V1` was generated once using `StratifiedGroupKFold(n_splits=10, shuffle=True, random_state=113)`, grouped by `lesion_id` and stratified by `dx`. Fold 0 is test, fold 1 validation, and folds 2–9 train; no alternative seed/fold search was performed.
-- Proposed counts are 8,011/1,002/1,002 images and 5,975/747/748 lesions for train/validation/test. All seven diagnoses occur in each partition, every image occurs exactly once, and every pairwise lesion overlap is zero. All 17 split invariants passed.
-- The historical split remains unchanged under `repro/`; the proposed split and comparison are under `research/splits/journal_v1/`.
-- `archetype_stability_v1` is pre-registered but not executed: K=`{5,7}`, seeds=`{113,211,307,401,503}`, ten planned runs, seed 113 reference within each K, validation-only Hungarian matching, and test-only stability evaluation.
+- Accepted immutable `journal_v1` was generated once using `StratifiedGroupKFold(n_splits=10, shuffle=True, random_state=113)`, grouped by `lesion_id` and stratified by `dx`. Fold 0 is test, fold 1 validation, and folds 2–9 train; no alternative seed/fold search was performed. A future replacement must be a new `journal_v2`, never a mutation.
+- Counts are 8,011/1,002/1,002 images and 5,975/747/748 lesions for train/validation/test. All seven diagnoses occur in each partition, every image occurs exactly once, and every pairwise lesion overlap is zero. All 17 split invariants passed.
+- The historical split remains unchanged under `repro/`; the accepted journal split and comparison are under `research/splits/journal_v1/`.
+- `archetype_stability_v1` is accepted and pre-registered but not executed: K=`{5,7}`, seeds=`{113,211,307,401,503}`, ten planned runs, seed 113 reference within each K, validation-only Hungarian matching, and test-only stability evaluation.
 - The planned architecture/objective remains the final May baseline. Planned explicit values are 128×128 RGB, batch 32, 50 epochs, Adam at 0.001, final-epoch checkpoint, and loss weights `1/1/0.01/1`; coefficient entropy remains evaluation-only.
-- Local TensorFlow 2.21 sees no GPU. The machine has 8 logical CPU threads and about 12.75 GiB free disk, making ten full local CPU runs impractical without additional resources.
+- Degenerate validation columns use population standard deviation `<= 1e-8` and deterministic `2 * MAE` alignment cost. Visual comparison uses RGB SSIM at data range 1.0, with pixel MSE secondary. Four seed comparisons are summarized without inferential confidence intervals; specified lesion metrics use the fixed paired bootstrap.
+- The manifest-only data adapter, deterministic runner, authoritative-model adapter, alignment, metrics, output protection, tests, smoke check, and external-GPU guide are implemented under `research/`. The smoke run is explicitly non-scientific.
+- Local TensorFlow 2.21 sees no GPU. The machine has 8 logical CPU threads and low disk headroom, making ten full local CPU runs impractical. The external route is documented in `research/external_gpu_execution.md`.
 
 ## CURRENT JOURNAL PROPOSALS
 
@@ -78,15 +80,16 @@ These are planned investigations, not findings:
 - Counterfactuals explain model behavior and must not be described as biological progression, treatment advice, or clinical causality.
 - `delta = 0` must reproduce the approved conference baseline once that baseline is identified.
 - Gate 3 mathematical and regularizer design approval is required before simplex-relaxation code is written.
+- `journal_v1` is the immutable split for stability v1; replacements require a new `journal_v2`.
+- Stability v1 uses K=`{5,7}`, the five fixed seeds, seed 113 references, validation-only matching, and test-only evaluation.
+- Degenerate alignment columns use the registered `2 * MAE` fallback; visual comparison and lesion bootstrap specifications are frozen in D-016 through D-018.
 
 ## OPEN DECISIONS
 
 - Seek author/coauthor confirmation that working baseline HEAD `29acec505161530f9ea811534b05dd52d8df9899` is the submitted conference snapshot, or preserve any contrary evidence if found.
 - Recover exact commands/configurations for the four May runs if archival records exist; currently inferred fields and their evidence are explicit in `repro/configs/conference_runs.json`.
-- Review and accept or reject `PROPOSED JOURNAL SPLIT V1`; do not train against it until reviewed.
-- Approve a definition and fallback for constant or nearly inactive coefficient columns in Hungarian matching. Seed 113 and the primary seed/K matrix are already pre-registered as proposed parameters.
-- Select the decoded-archetype visual similarity metric and uncertainty/interval method before stability results are calculated.
-- Review manifest-aware data loading, deterministic controls, overwrite protection, and synthetic permutation tests before launching stability training.
+- Senior-review and version the Gate 1 implementation so a primary runner can satisfy its clean-worktree guard.
+- Provision sufficient GPU and persistent storage before launching the ten primary runs.
 - Select the local-refinement objective, parameters, optimizer, learning rate, constraints, stopping rule, and runtime protocol after the authoritative model is available.
 - Resolve whether simplex relaxation changes the target of the archetype regularizer from `Z_fixed` to `Z_delta`, changes the regularizer itself, or uses another approved formulation.
 - Decide whether radial scale parameters need an identifiability/normalization constraint beyond the interval bound.
@@ -98,8 +101,8 @@ These are planned investigations, not findings:
 - Repository-local `docs/` is canonical; the original external docs copy is intentionally retained.
 - Conference tag/release, paper source/PDF, submitted-code archive, and explicit author confirmation of the baseline commit are absent.
 - Exact historical run commands, environment lock, and training histories are absent. Gate 0 now provides a current reproduction freeze, saved historical split manifests, evidence-classified run configuration, and no-training invariant checks under `repro/`; these are new preservation records, not recovered historical files.
-- The current source uses per-image class-stratified splitting rather than grouping by `lesion_id`; repeated lesions cross partitions. The historical membership and quantified overlap are now persisted under `repro/splits/conference_image_level`.
-- Training shuffling does not pass an explicit seed to `tf.data.Dataset.shuffle`; NumPy and TensorFlow global seeds are set, but full deterministic reproduction is not established.
+- The historical source uses per-image class-stratified splitting rather than grouping by `lesion_id`; repeated lesions cross partitions. The historical membership and quantified overlap are persisted under `repro/splits/conference_image_level`; journal runners bypass that splitter and consume `journal_v1` manifests.
+- Historical training shuffling does not pass an explicit seed to `tf.data.Dataset.shuffle`. Journal runners add an explicit run seed and deterministic pipeline controls without modifying the historical source; cross-hardware bitwise identity is still not guaranteed by TensorFlow.
 - No code-level early stopping/model-selection rule is present; training runs for the requested epoch count and saves final weights.
 - The source contains no coefficient-entropy stabilization term at HEAD. Entropy and `1 - entropy` sparsity are post-training evaluation metrics. The January source did contain temperature scaling and an entropy term, both removed in commit `661cc7f` before the matching May results.
 - The earlier local HAM implementation at `C:\Users\UserPc\Documents\github\ham10000_aanet` is a materially different deterministic PyTorch project, not the conference implementation.
@@ -170,4 +173,4 @@ No download is needed now. If reacquisition is needed later, the official ISIC 2
 
 ## NEXT ACTION
 
-Review the proposed journal_v1 statistics and hashes. Before training, approve the inactive-column alignment rule and visual metric, implement/review manifest-aware and deterministic training infrastructure without modifying the historical source, add synthetic assignment tests and overwrite protection, and resolve local-vs-external compute. Do not run stability experiments until those Gate 1 blockers are cleared.
+Senior-review and version the Gate 1 changes, then provision a suitable GPU/storage target using `research/external_gpu_execution.md`. Do not launch the ten primary stability runs until those operational prerequisites are met. Preserve accepted `journal_v1` unchanged.

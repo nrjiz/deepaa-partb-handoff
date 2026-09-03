@@ -1,6 +1,8 @@
 # journal_v1 leakage and invariant audit
 
-Status: **PROPOSED JOURNAL SPLIT V1 — pending senior-developer review**.
+Status: **ACCEPTED JOURNAL SPLIT V1** by senior-developer decision on 2026-09-03.
+
+These manifests are frozen and must not be regenerated or altered. A future replacement requires a separately versioned `journal_v2` and an explicit senior-developer decision.
 
 The split was generated once using the predetermined rule. No alternative seeds or fold assignments were searched for class balance.
 

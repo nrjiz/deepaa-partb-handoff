@@ -29,3 +29,7 @@
 - Validation data may define an archetype permutation, but stability reported as final evidence must be computed on test data.
 - A correlation-based assignment has a genuine undefined edge case for constant activation columns; silently inventing a fallback after seeing runs would weaken the preregistration.
 - CPU-only TensorFlow plus low disk headroom can be adequate for evaluation and protocol checks but unsuitable for a ten-run training plan.
+- Accepted split manifests are immutable research inputs; a replacement is a new version, not an in-place edit.
+- Degenerate assignment columns need a preregistered, scale-compatible fallback and a saved per-cell method record.
+- Four training-seed comparisons support transparent descriptive summaries, not a defensible seed-level confidence interval; lesion resampling answers a different, explicitly scoped uncertainty question.
+- A smoke run can validate the complete artifact/checkpoint path while remaining explicitly excluded from scientific evidence.

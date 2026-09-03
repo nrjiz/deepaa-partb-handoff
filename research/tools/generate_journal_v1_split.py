@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Generate the predetermined, lesion-grouped HAM10000 journal_v1 split.
+"""Historical generator for the accepted lesion-grouped HAM10000 journal_v1 split.
 
 This utility is intentionally separate from the historical conference code and
 never trains a model. Fold 0 is test, fold 1 is validation, and folds 2-9 are
-train. It refuses to write final manifests if lesion labels are inconsistent.
+train. The accepted output is immutable, so this utility refuses any existing
+destination; a replacement requires a separately implemented journal_v2.
 """
 
 from __future__ import annotations
@@ -205,6 +206,12 @@ def main() -> None:
     parser.add_argument("--image-dirs", type=Path, nargs="+", required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
+
+    if args.output_dir.exists():
+        raise FileExistsError(
+            "Refusing to regenerate or overwrite accepted journal_v1; "
+            "a replacement requires a separately versioned journal_v2"
+        )
 
     metadata = pd.read_csv(args.metadata)
     classes, conflicts = validate_metadata(metadata)
