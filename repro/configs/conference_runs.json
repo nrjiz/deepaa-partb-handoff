@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "29acec505161530f9ea811534b05dd52d8df9899",
+  "status_definitions": {
+    "EXPLICIT": "Persisted in a run artifact or unavoidably fixed by the authoritative source used for the run.",
+    "INFERRED": "Supported by README commands and/or source defaults but not persisted as the actual invocation.",
+    "UNKNOWN": "Evidence does not establish a value."
+  },
+  "applies_to_all_runs": {
+    "random_seed": {
+      "value": 113,
+      "status": "INFERRED",
+      "evidence": "Baseline CLI default; the seed is absent from result artifacts and the actual command line was not saved."
+    },
+    "image_dimensions": {
+      "value": [128, 128, 3],
+      "status": "EXPLICIT",
+      "evidence": "Each committed table8 records image size 128; source forces three-channel JPEG decode."
+    },
+    "batch_size": {
+      "value": 32,
+      "status": "INFERRED",
+      "evidence": "README gives batch size 32 for all four K commands and source defaults to 32; table8 is a placeholder rather than a saved value. Exact checkpoint metric matching at batch size 32 is strong retrospective confirmation."
+    },
+    "epochs": {
+      "value": 50,
+      "status": "INFERRED",
+      "evidence": "README gives 50 epochs for all four K commands and source defaults to 50; table8 does not persist the actual value."
+    },
+    "learning_rate": {
+      "value": 0.001,
+      "status": "INFERRED",
+      "evidence": "Source default; README commands omit --lr and table8 contains only a placeholder."
+    },
+    "reconstruction_weight": {
+      "value": 1.0,
+      "status": "EXPLICIT",
+      "evidence": "Persisted loss string in each table8 and authoritative source."
+    },
+    "classification_weight": {
+      "value": 1.0,
+      "status": "EXPLICIT",
+      "evidence": "Persisted loss string in each table8 and authoritative source."
+    },
+    "kl_weight": {
+      "value": 0.01,
+      "status": "EXPLICIT",
+      "evidence": "Persisted loss string in each table8 and authoritative source."
+    },
+    "archetype_simplex_weight": {
+      "value": 1.0,
+      "status": "EXPLICIT",
+      "evidence": "Persisted loss string in each table8 and authoritative source."
+    },
+    "coefficient_entropy_training_weight": {
+      "value": 0.0,
+      "status": "EXPLICIT",
+      "evidence": "No entropy term exists in the final May source; entropy is computed only during post-training evaluation."
+    },
+    "optimizer": {
+      "value": "tf.keras.optimizers.Adam",
+      "status": "EXPLICIT",
+      "evidence": "Optimizer is fixed in the authoritative training source."
+    },
+    "dataset_path_behavior": {
+      "value": "Explicit --labels_csv and --img_dirs accepted; otherwise discovery under --downloads_dir (default user Downloads). Image index is built from *.jpg and missing metadata rows are dropped.",
+      "status": "EXPLICIT",
+      "evidence": "Authoritative source. Committed per-image tables retain C:\\Users\\User\\Downloads paths for both HAM10000 image-part directories."
+    },
+    "split_fractions": {
+      "value": {"train": 0.8, "validation": 0.1, "test": 0.1},
+      "status": "INFERRED",
+      "evidence": "Source defaults and reconstructed 8013/1001/1001 split match every committed test table, but the actual CLI fractions were not persisted."
+    },
+    "split_algorithm": {
+      "value": "One numpy.random.default_rng(seed), iterate sorted integer labels, shuffle metadata indices per class, test=first round(n*test_frac), validation=next round(n*val_frac), train=remainder; image-level, no lesion grouping.",
+      "status": "EXPLICIT",
+      "evidence": "Authoritative source; reconstructed test order produces exact checkpoint metrics and committed per-image ordering."
+    },
+    "preprocessing": {
+      "value": "Read JPEG bytes; tf.image.decode_jpeg(channels=3); bilinear resize to 128x128; cast float32; divide by 255; no augmentation.",
+      "status": "EXPLICIT",
+      "evidence": "Authoritative source."
+    },
+    "evaluation_behavior": {
+      "value": "Final checkpoint, deterministic t=mu with training=False; unshuffled test order; MSE per pixel and classification per image; KL and simplex reported as unweighted mean of batch means; entropy normalized by log(K); sparsity=1-mean entropy; active threshold 0.10.",
+      "status": "EXPLICIT",
+      "evidence": "Authoritative source and exact checkpoint reproduction."
+    },
+    "model_selection": {
+      "value": "Final epoch weights; no early stopping or best-checkpoint selection in source.",
+      "status": "EXPLICIT",
+      "evidence": "Authoritative source saves after completing the epoch loop."
+    }
+  },
+  "runs": [
+    {
+      "K": {"value": 3, "status": "EXPLICIT", "evidence": "Committed table1/table6 and checkpoint architecture."},
+      "latent_dimension": {"value": 2, "status": "EXPLICIT", "evidence": "K=latent_dim+1, README K=3 command, latent CSV has two dimensions."},
+      "output_run_directory": {"value": "Results_HAM_DAA/20260508_002312", "status": "EXPLICIT", "evidence": "Committed directory."},
+      "run_timestamp": {"value": "2026-05-08T00:23:12", "status": "INFERRED", "evidence": "Parsed from result directory name; timezone is not encoded."},
+      "artifact_added_commit": {"value": "6dd815416cce4e7a7b1434174b2761bc88fdadca", "status": "EXPLICIT", "evidence": "Git history."}
+    },
+    {
+      "K": {"value": 5, "status": "EXPLICIT", "evidence": "Committed table1/table6 and checkpoint architecture."},
+      "latent_dimension": {"value": 4, "status": "EXPLICIT", "evidence": "K=latent_dim+1, README K=5 command, latent CSV has four dimensions."},
+      "output_run_directory": {"value": "Results_HAM_DAA/20260507_131506", "status": "EXPLICIT", "evidence": "Committed directory."},
+      "run_timestamp": {"value": "2026-05-07T13:15:06", "status": "INFERRED", "evidence": "Parsed from result directory name; timezone is not encoded."},
+      "artifact_added_commit": {"value": "661cc7fa9ad91c52f88f863b06a6a740c70d2bbe", "status": "EXPLICIT", "evidence": "Git history."}
+    },
+    {
+      "K": {"value": 7, "status": "EXPLICIT", "evidence": "Committed table1/table6 and checkpoint architecture."},
+      "latent_dimension": {"value": 6, "status": "EXPLICIT", "evidence": "K=latent_dim+1, README K=7 command, latent CSV has six dimensions."},
+      "output_run_directory": {"value": "Results_HAM_DAA/20260508_104147", "status": "EXPLICIT", "evidence": "Committed directory."},
+      "run_timestamp": {"value": "2026-05-08T10:41:47", "status": "INFERRED", "evidence": "Parsed from result directory name; timezone is not encoded."},
+      "artifact_added_commit": {"value": "6dd815416cce4e7a7b1434174b2761bc88fdadca", "status": "EXPLICIT", "evidence": "Git history."}
+    },
+    {
+      "K": {"value": 9, "status": "EXPLICIT", "evidence": "Committed table1/table6 and checkpoint architecture."},
+      "latent_dimension": {"value": 8, "status": "EXPLICIT", "evidence": "K=latent_dim+1, README K=9 command, latent CSV has eight dimensions."},
+      "output_run_directory": {"value": "Results_HAM_DAA/20260509_112437", "status": "EXPLICIT", "evidence": "Committed directory."},
+      "run_timestamp": {"value": "2026-05-09T11:24:37", "status": "INFERRED", "evidence": "Parsed from result directory name; timezone is not encoded."},
+      "artifact_added_commit": {"value": "29acec505161530f9ea811534b05dd52d8df9899", "status": "EXPLICIT", "evidence": "Git history."}
+    }
+  ],
+  "unknown_fields": [
+    {"field": "exact_command_line", "status": "UNKNOWN", "evidence": "No shell transcript, training log, or run config is committed."},
+    {"field": "exact_historical_package_versions", "status": "UNKNOWN", "evidence": "No lock file or environment export is committed."},
+    {"field": "training_device_and_determinism", "status": "UNKNOWN", "evidence": "No runtime log is committed; tf.data training shuffle has no explicit local seed."}
+  ]
+}

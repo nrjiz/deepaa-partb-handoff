@@ -1,0 +1,54 @@
+[
+  {
+    "K": 3,
+    "checkpoint": "Results_HAM_DAA/20260508_002312/daa_ham_weights.weights.h5",
+    "test_images": 1001,
+    "batch_size": 32,
+    "batches": 32,
+    "simplex_shape": [
+      3,
+      2
+    ],
+    "minimum_coefficient": 1.0278965668973799e-23,
+    "maximum_coefficient_row_sum_error": 1.1920928955078125e-07
+  },
+  {
+    "K": 5,
+    "checkpoint": "Results_HAM_DAA/20260507_131506/daa_ham_weights.weights.h5",
+    "test_images": 1001,
+    "batch_size": 32,
+    "batches": 32,
+    "simplex_shape": [
+      5,
+      4
+    ],
+    "minimum_coefficient": 0.00022073696891311556,
+    "maximum_coefficient_row_sum_error": 1.7881393432617188e-07
+  },
+  {
+    "K": 7,
+    "checkpoint": "Results_HAM_DAA/20260508_104147/daa_ham_weights.weights.h5",
+    "test_images": 1001,
+    "batch_size": 32,
+    "batches": 32,
+    "simplex_shape": [
+      7,
+      6
+    ],
+    "minimum_coefficient": 3.059732625843026e-05,
+    "maximum_coefficient_row_sum_error": 2.384185791015625e-07
+  },
+  {
+    "K": 9,
+    "checkpoint": "Results_HAM_DAA/20260509_112437/daa_ham_weights.weights.h5",
+    "test_images": 1001,
+    "batch_size": 32,
+    "batches": 32,
+    "simplex_shape": [
+      9,
+      8
+    ],
+    "minimum_coefficient": 2.86228496406693e-05,
+    "maximum_coefficient_row_sum_error": 2.384185791015625e-07
+  }
+]

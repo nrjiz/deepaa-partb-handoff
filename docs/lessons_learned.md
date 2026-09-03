@@ -1,0 +1,24 @@
+# Lessons learned
+
+- Fixed simplex geometry does not imply stable semantic archetypes.
+- Archetype IDs cannot be compared across independent runs before alignment.
+- Fixed-vertex Euclidean matching is not sufficient for the DeepAA stability question.
+- Matching and final stability evaluation should use separate reference/validation and held-out test samples.
+- Amortization-gap measurement must avoid diagnosis-label leakage.
+- Fast encoder inference should be evaluated against a frozen-model local optimum, including runtime trade-offs.
+- Geometry relaxation may be cancelled by an incompatible regularizer.
+- `delta = 0` must be tested as exact baseline recovery, not assumed.
+- Counterfactual model explanations do not establish clinical causality.
+- Valid simplex coordinates do not guarantee realistic decoded images or robust classifier behavior.
+- Every journal contribution must be distinguished from conference material.
+- HAM10000 must be split with awareness of repeated images per `lesion_id`; image-level stratification alone can leak lesions across partitions.
+- A seed makes split calls repeatable but does not by itself ensure bitwise-deterministic training.
+- Classification metrics are invalid as held-out estimates if the classifier is fitted and scored on the same test set.
+- A local implementation should not be called the conference baseline when its framework and probabilistic structure conflict with the official paper description.
+- Split manifests, configurations, dependencies, checkpoints, and output provenance are research artifacts, not optional housekeeping.
+- Directory timestamps can support chronology but are not equivalent to recorded run timestamps when no timezone or invocation log is preserved.
+- A reconstructed test order is strongly corroborated when checkpoint evaluation reproduces a batch-composition-dependent simplex penalty as well as per-image metrics.
+- Artifact-only verification must distinguish derivable metrics from values whose sufficient statistics were never saved; here, KL needs `logvar` and the simplex penalty needs batch-derived `z_pred`.
+- The historical image-level split is image-ID disjoint yet lesion-ID overlapping: 725 lesion IDs and 1,737 images cross at least one partition boundary.
+- The final May source must not inherit January entropy/temperature training logic merely because that logic exists in repository history.
+- Reproduction environment provenance and historical environment provenance are different claims; the former can be frozen now while the latter remains unknown.

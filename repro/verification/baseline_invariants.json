@@ -1,0 +1,159 @@
+{
+  "source_commit": "29acec505161530f9ea811534b05dd52d8df9899",
+  "training_performed": false,
+  "total_checks": 30,
+  "passed": 30,
+  "failed": 0,
+  "checks": [
+    {
+      "check": "authoritative_source_hash",
+      "status": "PASS",
+      "details": "expected=6dbbc22f79d2f1242ae384b5468fdacaf019527114fbc248bdbaf796b245ef4d; actual=6dbbc22f79d2f1242ae384b5468fdacaf019527114fbc248bdbaf796b245ef4d"
+    },
+    {
+      "check": "test_manifest_count",
+      "status": "PASS",
+      "details": "expected=1001; actual=1001"
+    },
+    {
+      "check": "test_manifest_hash",
+      "status": "PASS",
+      "details": "expected=e24a78ffb22be7f0dfe8ad63b4c0d87f7ac3eaf890658c474a9c55a4cc1c4b63; actual=e24a78ffb22be7f0dfe8ad63b4c0d87f7ac3eaf890658c474a9c55a4cc1c4b63"
+    },
+    {
+      "check": "train_manifest_count",
+      "status": "PASS",
+      "details": "expected=8013; actual=8013"
+    },
+    {
+      "check": "train_manifest_hash",
+      "status": "PASS",
+      "details": "expected=5573c4370a1133a7e8272d708f8c9f90b595309601a496c4585471d0d6d47e44; actual=5573c4370a1133a7e8272d708f8c9f90b595309601a496c4585471d0d6d47e44"
+    },
+    {
+      "check": "validation_manifest_count",
+      "status": "PASS",
+      "details": "expected=1001; actual=1001"
+    },
+    {
+      "check": "validation_manifest_hash",
+      "status": "PASS",
+      "details": "expected=e989f41b2d96be20b1ba101f8cf8a17004df02e224510b1b5e1e1d5459185272; actual=e989f41b2d96be20b1ba101f8cf8a17004df02e224510b1b5e1e1d5459185272"
+    },
+    {
+      "check": "image_id_disjoint_train_validation",
+      "status": "PASS",
+      "details": "overlap_count=0"
+    },
+    {
+      "check": "image_id_disjoint_train_test",
+      "status": "PASS",
+      "details": "overlap_count=0"
+    },
+    {
+      "check": "image_id_disjoint_validation_test",
+      "status": "PASS",
+      "details": "overlap_count=0"
+    },
+    {
+      "check": "K3_checkpoint_load",
+      "status": "PASS",
+      "details": "Results_HAM_DAA/20260508_002312/daa_ham_weights.weights.h5"
+    },
+    {
+      "check": "K3_simplex_shape",
+      "status": "PASS",
+      "details": "actual=[3, 2]; expected=[3, 2]"
+    },
+    {
+      "check": "K3_coefficients_nonnegative",
+      "status": "PASS",
+      "details": "minimum=1.09327318e-10"
+    },
+    {
+      "check": "K3_coefficient_rows_sum_to_one",
+      "status": "PASS",
+      "details": "maximum_absolute_error=1.1920929e-07; tolerance=1e-6"
+    },
+    {
+      "check": "K3_mu_equals_a_times_z_fixed",
+      "status": "PASS",
+      "details": "shape=[2, 2]; maximum_absolute_error=0; tolerance=1e-6"
+    },
+    {
+      "check": "K5_checkpoint_load",
+      "status": "PASS",
+      "details": "Results_HAM_DAA/20260507_131506/daa_ham_weights.weights.h5"
+    },
+    {
+      "check": "K5_simplex_shape",
+      "status": "PASS",
+      "details": "actual=[5, 4]; expected=[5, 4]"
+    },
+    {
+      "check": "K5_coefficients_nonnegative",
+      "status": "PASS",
+      "details": "minimum=1.97709369e-06"
+    },
+    {
+      "check": "K5_coefficient_rows_sum_to_one",
+      "status": "PASS",
+      "details": "maximum_absolute_error=1.1920929e-07; tolerance=1e-6"
+    },
+    {
+      "check": "K5_mu_equals_a_times_z_fixed",
+      "status": "PASS",
+      "details": "shape=[2, 4]; maximum_absolute_error=2.98023224e-08; tolerance=1e-6"
+    },
+    {
+      "check": "K7_checkpoint_load",
+      "status": "PASS",
+      "details": "Results_HAM_DAA/20260508_104147/daa_ham_weights.weights.h5"
+    },
+    {
+      "check": "K7_simplex_shape",
+      "status": "PASS",
+      "details": "actual=[7, 6]; expected=[7, 6]"
+    },
+    {
+      "check": "K7_coefficients_nonnegative",
+      "status": "PASS",
+      "details": "minimum=2.53141792e-07"
+    },
+    {
+      "check": "K7_coefficient_rows_sum_to_one",
+      "status": "PASS",
+      "details": "maximum_absolute_error=0; tolerance=1e-6"
+    },
+    {
+      "check": "K7_mu_equals_a_times_z_fixed",
+      "status": "PASS",
+      "details": "shape=[2, 6]; maximum_absolute_error=5.96046448e-08; tolerance=1e-6"
+    },
+    {
+      "check": "K9_checkpoint_load",
+      "status": "PASS",
+      "details": "Results_HAM_DAA/20260509_112437/daa_ham_weights.weights.h5"
+    },
+    {
+      "check": "K9_simplex_shape",
+      "status": "PASS",
+      "details": "actual=[9, 8]; expected=[9, 8]"
+    },
+    {
+      "check": "K9_coefficients_nonnegative",
+      "status": "PASS",
+      "details": "minimum=6.14347115e-08"
+    },
+    {
+      "check": "K9_coefficient_rows_sum_to_one",
+      "status": "PASS",
+      "details": "maximum_absolute_error=1.1920929e-07; tolerance=1e-6"
+    },
+    {
+      "check": "K9_mu_equals_a_times_z_fixed",
+      "status": "PASS",
+      "details": "shape=[2, 8]; maximum_absolute_error=1.49011612e-08; tolerance=1e-6"
+    }
+  ]
+}

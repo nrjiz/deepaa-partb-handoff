@@ -1,0 +1,101 @@
+{
+  "algorithm": "One numpy.random.default_rng(seed); for each sorted integer diagnosis label, shuffle metadata indices, assign round(n*test_fraction) to test, then round(n*validation_fraction) to validation, and the remainder to train. No lesion_id grouping.",
+  "available_metadata_rows": 10015,
+  "class_counts": {
+    "test": {
+      "akiec": 33,
+      "bcc": 51,
+      "bkl": 110,
+      "df": 12,
+      "mel": 111,
+      "nv": 670,
+      "vasc": 14
+    },
+    "train": {
+      "akiec": 261,
+      "bcc": 412,
+      "bkl": 879,
+      "df": 91,
+      "mel": 891,
+      "nv": 5365,
+      "vasc": 114
+    },
+    "validation": {
+      "akiec": 33,
+      "bcc": 51,
+      "bkl": 110,
+      "df": 12,
+      "mel": 111,
+      "nv": 670,
+      "vasc": 14
+    }
+  },
+  "leakage": {
+    "affected_images_by_partition": {
+      "test": {
+        "count": 405,
+        "percent": 40.45954045954046
+      },
+      "train": {
+        "count": 932,
+        "percent": 11.63109946337202
+      },
+      "validation": {
+        "count": 400,
+        "percent": 39.96003996003996
+      }
+    },
+    "affected_images_total": 1737,
+    "affected_unique_lesion_ids": 725,
+    "lesions_in_all_three": 22,
+    "overlapping_lesions_by_dx": {
+      "akiec": 29,
+      "bcc": 53,
+      "bkl": 109,
+      "df": 10,
+      "mel": 145,
+      "nv": 366,
+      "vasc": 13
+    },
+    "pairwise": {
+      "train_test": {
+        "overlapping_lesion_ids": 362,
+        "test_affected_images": 376,
+        "test_affected_percent": 37.56243756243756,
+        "train_affected_images": 479,
+        "train_affected_percent": 5.977786097591413
+      },
+      "train_validation": {
+        "overlapping_lesion_ids": 357,
+        "train_affected_images": 482,
+        "train_affected_percent": 6.0152252589541995,
+        "validation_affected_images": 372,
+        "validation_affected_percent": 37.162837162837164
+      },
+      "validation_test": {
+        "overlapping_lesion_ids": 50,
+        "test_affected_images": 53,
+        "test_affected_percent": 5.294705294705294,
+        "validation_affected_images": 51,
+        "validation_affected_percent": 5.094905094905095
+      }
+    }
+  },
+  "leakage_details_sha256": "d801219bbb2da99ecd60afbb88b2f0bb3cefce501181d02b040d5a872e77b905",
+  "manifest_sha256": {
+    "test.csv": "e24a78ffb22be7f0dfe8ad63b4c0d87f7ac3eaf890658c474a9c55a4cc1c4b63",
+    "train.csv": "5573c4370a1133a7e8272d708f8c9f90b595309601a496c4585471d0d6d47e44",
+    "validation.csv": "e989f41b2d96be20b1ba101f8cf8a17004df02e224510b1b5e1e1d5459185272"
+  },
+  "metadata_sha256": "06aee5e603d313ba69de38263053c792a1dff030eb9c44a96ceb477ceefb99a5",
+  "partition_counts": {
+    "test": 1001,
+    "train": 8013,
+    "validation": 1001
+  },
+  "protocol": "conference_image_level",
+  "seed": 113,
+  "source_commit": "29acec505161530f9ea811534b05dd52d8df9899",
+  "test_fraction": 0.1,
+  "validation_fraction": 0.1
+}

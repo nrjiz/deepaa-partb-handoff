@@ -1,0 +1,225 @@
+K,run_directory,metric,component,expected_publication_rounded,committed_value,recomputed_value,absolute_difference_expected_vs_committed,absolute_difference_committed_vs_recomputed,tolerance,status,evidence
+3,20260508_002312,mse,overall,0.008679,0.0086791622218676,0.008679162221867636,1.6222186760041224e-07,3.642919299551295e-17,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+3,20260508_002312,accuracy,overall,0.666334,0.6663336663336663,0.6663336663336663,3.3366633367393206e-07,0.0,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+3,20260508_002312,coefficient_variance,overall,0.022459,0.0224593565305033,0.02245935653050336,3.56530503300978e-07,5.898059818321144e-17,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+3,20260508_002312,normalized_entropy,overall,0.897674,0.8976738151362277,0.89767379625269,1.8486377229010031e-07,1.8883537733493938e-08,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+3,20260508_002312,sparsity,overall,0.102326,0.1023262037473099,0.10232620374731005,2.0374730989869416e-07,1.5265566588595902e-16,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+3,20260508_002312,average_active_archetypes,overall,,2.825174825174825,2.825174825174825,,0.0,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+3,20260508_002312,kl,overall,9.05205,9.05204951763153,,4.823684687238483e-07,,,NOT_RECOMPUTABLE_FROM_ARTIFACTS,Saved per-image CSV omits log-variance and batch-derived z_pred required for this metric
+3,20260508_002312,simplex_penalty,overall,0.33327,0.3332698575686663,,1.4243133372726646e-07,,,NOT_RECOMPUTABLE_FROM_ARTIFACTS,Saved per-image CSV omits log-variance and batch-derived z_pred required for this metric
+3,20260508_002312,archetype_usage_percent,A1,,25.5,25.47452547452547,,0.025474525474528775,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+3,20260508_002312,archetype_usage_percent,A2,,35.0,34.96503496503497,,0.034965034965033226,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+3,20260508_002312,archetype_usage_percent,A3,,39.6,39.56043956043956,,0.03956043956043942,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+3,20260508_002312,class_distribution_percent,A1:akiec,,1.1764705882352942,1.1764705882352942,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A1:bcc,,0.392156862745098,0.39215686274509803,,5.551115123125783e-17,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A1:bkl,,4.313725490196078,4.313725490196078,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A1:df,,0.392156862745098,0.39215686274509803,,5.551115123125783e-17,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A1:mel,,6.666666666666667,6.666666666666667,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A1:nv,,85.88235294117646,85.88235294117646,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A1:vasc,,1.1764705882352942,1.1764705882352942,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A2:akiec,,1.7142857142857144,1.7142857142857144,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A2:bcc,,4.0,4.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A2:bkl,,6.571428571428571,6.571428571428571,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A2:df,,1.7142857142857144,1.7142857142857144,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A2:mel,,6.857142857142858,6.857142857142858,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A2:nv,,78.0,78.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A2:vasc,,1.1428571428571428,1.1428571428571428,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A3:akiec,,6.0606060606060606,6.0606060606060606,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A3:bcc,,9.090909090909092,9.090909090909092,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A3:bkl,,19.19191919191919,19.19191919191919,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A3:df,,1.2626262626262623,1.2626262626262625,,2.220446049250313e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A3:mel,,17.67676767676768,17.67676767676768,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A3:nv,,44.94949494949495,44.94949494949495,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+3,20260508_002312,class_distribution_percent,A3:vasc,,1.7676767676767675,1.7676767676767675,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,mse,overall,0.006598,0.006597702631952,0.006597702631951967,2.973680479998603e-07,3.2959746043559335e-17,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+5,20260507_131506,accuracy,overall,0.672328,0.6723276723276723,0.6723276723276723,3.27672327715689e-07,0.0,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+5,20260507_131506,coefficient_variance,overall,0.010752,0.0107522122863214,0.01075221228632149,2.1228632140005144e-07,9.020562075079397e-17,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+5,20260507_131506,normalized_entropy,overall,0.913765,0.913765348514164,0.9137653434310327,3.485141639725242e-07,5.08313136027283e-09,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+5,20260507_131506,sparsity,overall,0.086235,0.0862346565689671,0.08623465656896734,3.4343103290368493e-07,2.3592239273284576e-16,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+5,20260507_131506,average_active_archetypes,overall,,4.193806193806194,4.193806193806194,,0.0,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+5,20260507_131506,kl,overall,18.027552,18.02755182981491,,1.701850891322465e-07,,,NOT_RECOMPUTABLE_FROM_ARTIFACTS,Saved per-image CSV omits log-variance and batch-derived z_pred required for this metric
+5,20260507_131506,simplex_penalty,overall,0.558307,0.5583071354776621,,1.3547766208876766e-07,,,NOT_RECOMPUTABLE_FROM_ARTIFACTS,Saved per-image CSV omits log-variance and batch-derived z_pred required for this metric
+5,20260507_131506,archetype_usage_percent,A1,,10.8,10.789210789210788,,0.010789210789212689,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+5,20260507_131506,archetype_usage_percent,A2,,26.4,26.373626373626376,,0.026373626373622727,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+5,20260507_131506,archetype_usage_percent,A3,,9.1,9.090909090909092,,0.009090909090907928,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+5,20260507_131506,archetype_usage_percent,A4,,28.2,28.171828171828174,,0.028171828171824842,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+5,20260507_131506,archetype_usage_percent,A5,,25.6,25.574425574425575,,0.02557442557442613,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+5,20260507_131506,class_distribution_percent,A1:akiec,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A1:bcc,,0.9259259259259258,0.9259259259259258,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A1:bkl,,16.666666666666664,16.666666666666664,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A1:df,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A1:mel,,30.55555555555556,30.555555555555557,,3.552713678800501e-15,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A1:nv,,51.85185185185185,51.85185185185185,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A1:vasc,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A2:akiec,,2.272727272727273,2.272727272727273,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A2:bcc,,6.8181818181818175,6.8181818181818175,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A2:bkl,,21.21212121212121,21.21212121212121,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A2:df,,1.5151515151515151,1.5151515151515151,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A2:mel,,20.07575757575757,20.075757575757574,,3.552713678800501e-15,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A2:nv,,47.34848484848485,47.34848484848485,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A2:vasc,,0.7575757575757576,0.7575757575757576,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A3:akiec,,3.296703296703297,3.296703296703297,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A3:bcc,,1.098901098901099,1.098901098901099,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A3:bkl,,10.989010989010987,10.989010989010989,,1.7763568394002505e-15,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A3:df,,1.098901098901099,1.098901098901099,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A3:mel,,6.593406593406594,6.593406593406594,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A3:nv,,75.82417582417582,75.82417582417582,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A3:vasc,,1.098901098901099,1.098901098901099,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A4:akiec,,2.4822695035460995,2.4822695035460995,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A4:bcc,,1.0638297872340423,1.0638297872340425,,2.220446049250313e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A4:bkl,,3.191489361702128,3.1914893617021276,,4.440892098500626e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A4:df,,0.7092198581560284,0.7092198581560284,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A4:mel,,1.0638297872340423,1.0638297872340425,,2.220446049250313e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A4:nv,,90.0709219858156,90.0709219858156,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A4:vasc,,1.4184397163120568,1.4184397163120568,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A5:akiec,,6.640625,6.640625,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A5:bcc,,10.9375,10.9375,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A5:bkl,,6.640625,6.640625,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A5:df,,1.953125,1.953125,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A5:mel,,6.25,6.25,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A5:nv,,64.84375,64.84375,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+5,20260507_131506,class_distribution_percent,A5:vasc,,2.734375,2.734375,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,mse,overall,0.004913,0.0049132313425224,0.004913231342522421,2.3134252240004233e-07,2.0816681711721685e-17,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+7,20260508_104147,accuracy,overall,0.695305,0.6953046953046953,0.6953046953046953,3.0469530465371264e-07,0.0,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+7,20260508_104147,coefficient_variance,overall,0.006778,0.0067781515141279,0.006778151514127922,1.515141278994256e-07,2.2551405187698492e-17,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+7,20260508_104147,normalized_entropy,overall,0.912072,0.912071763050931,0.9120717608474498,2.3694906903237722e-07,2.203481175300226e-09,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+7,20260508_104147,sparsity,overall,0.087928,0.0879282391525499,0.08792823915255021,2.3915254988848833e-07,3.191891195797325e-16,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+7,20260508_104147,average_active_archetypes,overall,,4.578421578421579,4.578421578421579,,0.0,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+7,20260508_104147,kl,overall,27.029241,27.029241383075718,,3.8307571870177526e-07,,,NOT_RECOMPUTABLE_FROM_ARTIFACTS,Saved per-image CSV omits log-variance and batch-derived z_pred required for this metric
+7,20260508_104147,simplex_penalty,overall,0.653163,0.6531628742814064,,1.2571859364651772e-07,,,NOT_RECOMPUTABLE_FROM_ARTIFACTS,Saved per-image CSV omits log-variance and batch-derived z_pred required for this metric
+7,20260508_104147,archetype_usage_percent,A1,,20.4,20.37962037962038,,0.020379620379618046,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+7,20260508_104147,archetype_usage_percent,A2,,12.7,12.687312687312687,,0.012687312687312158,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+7,20260508_104147,archetype_usage_percent,A3,,4.9,4.895104895104895,,0.004895104895105362,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+7,20260508_104147,archetype_usage_percent,A4,,6.1,6.093906093906094,,0.006093906093905588,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+7,20260508_104147,archetype_usage_percent,A5,,6.5,6.493506493506493,,0.006493506493507439,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+7,20260508_104147,archetype_usage_percent,A6,,18.5,18.48151848151848,,0.018481518481518577,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+7,20260508_104147,archetype_usage_percent,A7,,31.0,30.96903096903097,,0.03096903096902892,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+7,20260508_104147,class_distribution_percent,A1:akiec,,4.411764705882353,4.411764705882353,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A1:bcc,,9.803921568627452,9.803921568627452,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A1:bkl,,10.784313725490197,10.784313725490197,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A1:df,,1.96078431372549,1.9607843137254901,,2.220446049250313e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A1:mel,,7.84313725490196,7.8431372549019605,,8.881784197001252e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A1:nv,,61.76470588235294,61.76470588235294,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A1:vasc,,3.431372549019608,3.431372549019608,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A2:akiec,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A2:bcc,,0.7874015748031495,0.7874015748031495,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A2:bkl,,14.173228346456693,14.173228346456693,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A2:df,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A2:mel,,32.28346456692913,32.28346456692913,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A2:nv,,52.75590551181102,52.75590551181102,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A2:vasc,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A3:akiec,,6.122448979591836,6.122448979591836,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A3:bcc,,4.081632653061225,4.081632653061225,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A3:bkl,,28.57142857142857,28.57142857142857,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A3:df,,4.081632653061225,4.081632653061225,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A3:mel,,12.244897959183673,12.244897959183673,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A3:nv,,42.85714285714285,42.857142857142854,,7.105427357601002e-15,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A3:vasc,,2.0408163265306123,2.0408163265306123,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A4:akiec,,11.475409836065571,11.475409836065573,,1.7763568394002505e-15,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A4:bcc,,6.557377049180328,6.557377049180328,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A4:bkl,,26.229508196721312,26.229508196721312,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A4:df,,1.639344262295082,1.639344262295082,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A4:mel,,9.836065573770492,9.836065573770492,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A4:nv,,42.62295081967213,42.62295081967213,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A4:vasc,,1.639344262295082,1.639344262295082,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A5:akiec,,12.307692307692308,12.307692307692308,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A5:bcc,,12.307692307692308,12.307692307692308,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A5:bkl,,12.307692307692308,12.307692307692308,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A5:df,,1.5384615384615383,1.5384615384615385,,2.220446049250313e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A5:mel,,10.76923076923077,10.76923076923077,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A5:nv,,49.23076923076923,49.23076923076923,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A5:vasc,,1.5384615384615383,1.5384615384615385,,2.220446049250313e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A6:akiec,,2.702702702702702,2.7027027027027026,,4.440892098500626e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A6:bcc,,7.567567567567568,7.567567567567568,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A6:bkl,,14.594594594594597,14.594594594594595,,1.7763568394002505e-15,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A6:df,,1.6216216216216215,1.6216216216216217,,2.220446049250313e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A6:mel,,18.37837837837838,18.37837837837838,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A6:nv,,54.054054054054056,54.054054054054056,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A6:vasc,,1.0810810810810811,1.0810810810810811,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A7:akiec,,0.3225806451612903,0.3225806451612903,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A7:bcc,,0.6451612903225806,0.6451612903225806,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A7:bkl,,1.6129032258064515,1.6129032258064515,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A7:df,,0.3225806451612903,0.3225806451612903,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A7:mel,,0.3225806451612903,0.3225806451612903,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A7:nv,,96.12903225806453,96.12903225806451,,1.4210854715202004e-14,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+7,20260508_104147,class_distribution_percent,A7:vasc,,0.6451612903225806,0.6451612903225806,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,mse,overall,0.004175,0.0041745294350781,0.004174529435078133,4.7056492189986865e-07,3.2959746043559335e-17,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+9,20260509_112437,accuracy,overall,0.709291,0.7092907092907093,0.7092907092907093,2.907092907511455e-07,0.0,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+9,20260509_112437,coefficient_variance,overall,0.00435,0.0043497530384685,0.004349753038468572,2.469615315000076e-07,7.19910242530375e-17,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+9,20260509_112437,normalized_entropy,overall,0.916249,0.9162487175338176,0.9162487148266264,2.824661823330743e-07,2.7071912489518013e-09,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+9,20260509_112437,sparsity,overall,0.083751,0.0837512851733733,0.0837512851733736,2.8517337329059256e-07,3.0531133177191805e-16,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+9,20260509_112437,average_active_archetypes,overall,,4.373626373626373,4.373626373626373,,0.0,1e-07,MATCH,Recomputed from per_image_archetype_interpretation.csv
+9,20260509_112437,kl,overall,36.024504,36.02450430393219,,3.0393218963808977e-07,,,NOT_RECOMPUTABLE_FROM_ARTIFACTS,Saved per-image CSV omits log-variance and batch-derived z_pred required for this metric
+9,20260509_112437,simplex_penalty,overall,0.710956,0.7109558694064617,,1.305935383166812e-07,,,NOT_RECOMPUTABLE_FROM_ARTIFACTS,Saved per-image CSV omits log-variance and batch-derived z_pred required for this metric
+9,20260509_112437,archetype_usage_percent,A1,,2.6,2.5974025974025974,,0.0025974025974027093,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+9,20260509_112437,archetype_usage_percent,A2,,11.9,11.888111888111888,,0.011888111888112007,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+9,20260509_112437,archetype_usage_percent,A3,,5.2,5.194805194805195,,0.005194805194805419,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+9,20260509_112437,archetype_usage_percent,A4,,23.1,23.076923076923077,,0.02307692307692477,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+9,20260509_112437,archetype_usage_percent,A5,,7.9,7.892107892107893,,0.007892107892107703,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+9,20260509_112437,archetype_usage_percent,A6,,8.1,8.091908091908092,,0.00809190809190774,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+9,20260509_112437,archetype_usage_percent,A7,,24.6,24.575424575424577,,0.024575424575424165,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+9,20260509_112437,archetype_usage_percent,A8,,6.7,6.693306693306693,,0.006693306693307477,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+9,20260509_112437,archetype_usage_percent,A9,,10.0,9.990009990009991,,0.009990009990008986,0.0500001,MATCH_ROUNDED,Committed table stores one decimal place; recomputed from dominant_archetype
+9,20260509_112437,class_distribution_percent,A1:akiec,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A1:bcc,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A1:bkl,,15.384615384615383,15.384615384615385,,1.7763568394002505e-15,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A1:df,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A1:mel,,30.76923076923077,30.76923076923077,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A1:nv,,53.84615384615385,53.84615384615385,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A1:vasc,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A2:akiec,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A2:bcc,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A2:bkl,,1.680672268907563,1.680672268907563,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A2:df,,0.8403361344537815,0.8403361344537815,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A2:mel,,0.8403361344537815,0.8403361344537815,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A2:nv,,95.7983193277311,95.7983193277311,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A2:vasc,,0.8403361344537815,0.8403361344537815,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A3:akiec,,1.9230769230769231,1.9230769230769231,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A3:bcc,,5.769230769230769,5.769230769230769,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A3:bkl,,25.0,25.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A3:df,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A3:mel,,13.461538461538462,13.461538461538462,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A3:nv,,53.84615384615385,53.84615384615385,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A3:vasc,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A4:akiec,,8.225108225108226,8.225108225108226,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A4:bcc,,12.554112554112551,12.554112554112553,,1.7763568394002505e-15,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A4:bkl,,13.41991341991342,13.41991341991342,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A4:df,,2.1645021645021645,2.1645021645021645,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A4:mel,,10.822510822510822,10.822510822510822,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A4:nv,,49.35064935064935,49.35064935064935,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A4:vasc,,3.463203463203463,3.463203463203463,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A5:akiec,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A5:bcc,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A5:bkl,,2.5316455696202533,2.5316455696202533,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A5:df,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A5:mel,,2.5316455696202533,2.5316455696202533,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A5:nv,,93.67088607594935,93.67088607594937,,1.4210854715202004e-14,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A5:vasc,,1.2658227848101269,1.2658227848101267,,2.220446049250313e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A6:akiec,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A6:bcc,,2.469135802469136,2.4691358024691357,,4.440892098500626e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A6:bkl,,17.28395061728395,17.28395061728395,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A6:df,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A6:mel,,37.03703703703704,37.03703703703704,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A6:nv,,43.20987654320987,43.20987654320987,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A6:vasc,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A7:akiec,,3.658536585365853,3.6585365853658534,,4.440892098500626e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A7:bcc,,6.097560975609756,6.097560975609756,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A7:bkl,,9.75609756097561,9.75609756097561,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A7:df,,2.032520325203252,2.0325203252032518,,4.440892098500626e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A7:mel,,11.38211382113821,11.38211382113821,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A7:nv,,66.26016260162602,66.26016260162602,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A7:vasc,,0.8130081300813009,0.8130081300813009,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A8:akiec,,2.985074626865672,2.9850746268656714,,4.440892098500626e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A8:bcc,,2.985074626865672,2.9850746268656714,,4.440892098500626e-16,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A8:bkl,,22.388059701492537,22.388059701492537,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A8:df,,1.4925373134328357,1.4925373134328357,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A8:mel,,13.432835820895525,13.432835820895523,,1.7763568394002505e-15,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A8:nv,,56.71641791044776,56.71641791044776,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A8:vasc,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A9:akiec,,2.0,2.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A9:bcc,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A9:bkl,,5.0,5.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A9:df,,0.0,0.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A9:mel,,1.0,1.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A9:nv,,90.0,90.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
+9,20260509_112437,class_distribution_percent,A9:vasc,,2.0,2.0,,0.0,1e-10,MATCH,Recomputed crosstab from dominant_archetype and true_label
