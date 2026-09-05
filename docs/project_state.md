@@ -2,6 +2,8 @@
 
 Last audited: **2026-09-03**.
 
+Compute/transfer follow-up **2026-09-05**: current research branch is `journal-research-local` at `7911e8643495a2f34820ca0adedbea1f322ab8da`; local `main` and locally cached `origin/main` remain the conference baseline `29acec5`, and origin push remains `DISABLED` (no live remote contact). The worktree was clean before this documentation update. No primary outputs exist. Hardware inventory identifies Intel UHD Graphics 620; TensorFlow sees no GPU, and WSL is not installed. No accessible external GPU target has been established. The bundle is valid, but an LF checkout fails the source guard's CRLF-based hash. Thus the earlier Gate 1 readiness statement describes local infrastructure validation, not current external launch readiness. See `research/compute_readiness.md` and `research/external_gpu_execution.md` for the audit and required decisions.
+
 ## ESTABLISHED CONFERENCE FACTS
 
 - Conference paper: *Probabilistic Variational Archetypal Learning on the Simplex for Interpretable Medical Image Analysis*, DATA 2026, paper 223, by Ali Yassin, Narjes Soudin, Abbass Rammal, and Mageda A. A. Sharafeddin.
