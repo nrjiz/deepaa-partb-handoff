@@ -1,6 +1,16 @@
 # Project state
 
-Last audited: **2026-09-03**.
+Last audited: **2026-09-09** (first primary CPU run validation).
+
+## Current execution update: 2026-09-09
+
+The first primary reference run, `research/runs/stability_v1/K5/seed_113`, completed all 50 epochs at execution revision `0e32c8d469be141d30e627219aeac7ee253a34fa`. Validation verdict: **PASS WITH LIMITATIONS**. All 21 inventoried artifacts match recorded hashes/sizes; protected source and frozen manifests match; independent checkpoint reload succeeds with 30 finite tensors and exact decoded-archetype reproduction. Validation/test mappings match manifest order, coefficient/latent arrays pass finite/simplex checks, and nearest-image/class tables reproduce from saved arrays. No required single-run artifact is missing.
+
+The unchanged baseline actually optimizes batch-mean per-image **summed** reconstruction error, not pixel-mean MSE. The runner reuses this objective with weights `1/1/0.01/1`; no loss-objective mismatch was found. Final-checkpoint train/validation/test pixel MSE is `0.005987259559 / 0.006343114190 / 0.006468955427`; accuracy is `0.681063538 / 0.682634731 / 0.678642715`. Loss components are unweighted batch averages, whereas pixel MSE and accuracy are image-weighted. Full metrics and the normalization audit are in the registry and separate report. `scientific_evidence: null` is the writer's primary-run default, not a scientific verdict.
+
+Recorded runner elapsed time is **14h 27m 16.698s**, including initialization, training, evaluation and exports; phase/active-compute durations are unavailable. The earlier 3-warm-up/20-timed-step CPU benchmark (median 1.517 s, range 1.309–1.811 s) extrapolated **5.29 training-only hours**, not total elapsed time. One completed run establishes local execution feasibility but does not establish matrix practicality or multi-seed stability. Assess progress/phase logging and interruption recovery before another run; no implementation or training was authorized in this validation task.
+
+Separate validation: `C:/Users/UserPc/Desktop/ai/validation_K5_seed113_20260909/REPORT.md` and `checks.json`. External log: `C:/Users/UserPc/Desktop/ai/primary_K5_seed113_0e32c8d_20260905_a7f19c.log`. Benchmark: `C:/Users/UserPc/Desktop/ai/cpu_feasibility_20260905/RESULTS.md`. Original artifacts/log remain unchanged. See `docs/experiments/experiment_registry.md` and `research/compute_readiness.md` for the dated outcome. Older readiness/no-primary-output statements below describe their original audit dates and are superseded by this update, not deleted historical evidence.
 
 Compute/transfer follow-up **2026-09-05**: current research branch is `journal-research-local` at `7911e8643495a2f34820ca0adedbea1f322ab8da`; local `main` and locally cached `origin/main` remain the conference baseline `29acec5`, and origin push remains `DISABLED` (no live remote contact). The worktree was clean before this documentation update. No primary outputs exist. Hardware inventory identifies Intel UHD Graphics 620; TensorFlow sees no GPU, and WSL is not installed. No accessible external GPU target has been established. The bundle is valid, but an LF checkout fails the source guard's CRLF-based hash. Thus the earlier Gate 1 readiness statement describes local infrastructure validation, not current external launch readiness. See `research/compute_readiness.md` and `research/external_gpu_execution.md` for the audit and required decisions.
 
@@ -175,4 +185,4 @@ No download is needed now. If reacquisition is needed later, the official ISIC 2
 
 ## NEXT ACTION
 
-Senior-review and version the Gate 1 changes, then provision a suitable GPU/storage target using `research/external_gpu_execution.md`. Do not launch the ten primary stability runs until those operational prerequisites are met. Preserve accepted `journal_v1` unchanged.
+Senior developer/BRAIN should review the first-run validation and decide progress logging, interruption recovery and sustained compute readiness before separately authorizing another fixed-seed run. Current runner has no resume support; interruption can lose unsaved training progress. The senior developer handles Git and must restore a reviewed clean worktree before any guarded launch. Do not launch anything from this validation task. Preserve accepted `journal_v1` and the completed reference run unchanged. Stability remains unanswered until independent runs are compared under the registered protocol.

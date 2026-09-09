@@ -1,5 +1,25 @@
 # Gate 1 compute readiness
 
+## First primary CPU outcome: 2026-09-09
+
+The older blocked/readiness statements below are historical snapshots. Explicitly authorized local CPU execution has now completed one primary run: `research/runs/stability_v1/K5/seed_113`, revision `0e32c8d469be141d30e627219aeac7ee253a34fa`, 50 epochs with unchanged K5/latent4/seed113, RGB128, batch32, Adam0.001, float32 and baseline objective. Validation verdict **PASS WITH LIMITATIONS**: inventory/source/manifests match, history complete/finite, checkpoint reload and required raw exports pass. See `../docs/experiments/experiment_registry.md` for metrics/definitions and `C:/Users/UserPc/Desktop/ai/validation_K5_seed113_20260909/REPORT.md` plus sibling `checks.json` for the full audit. External log: `C:/Users/UserPc/Desktop/ai/primary_K5_seed113_0e32c8d_20260905_a7f19c.log`. All original evidence is unchanged.
+
+### Benchmark versus recorded run interval
+
+Engineering benchmark `C:/Users/UserPc/Desktop/ai/cpu_feasibility_20260905/RESULTS.md` completed 3 warm-ups and 20 timed steps: median 1.517 s, range 1.309–1.811 s, finite losses. All 8,011 training images resolved/read successfully. Initialization/readability audit took 329.675 s, first batch wait 0.150 s and supervisor total 370.656 s. Worker peak working set was 908.10 MiB; minimum sampled available RAM 2.94 GiB, memory load 81%; no allocation failure. These are benchmark-only memory observations. Its 251 steps/epoch (last batch 11) yielded 6.35 training-only minutes/epoch and 5.29 h for 50 epochs; the 4.56–6.31 h min/max sensitivity range was not a confidence interval. Filesystem caches had been warmed by the readability audit.
+
+Primary runtime_environment.json records UTC `2026-09-05T12:13:44.723683+00:00` through `2026-09-06T02:41:01.421895+00:00`, exactly **52,036.698212 s = 14h 27m 16.698s** (about 2.73 times the training-only benchmark estimate). Runner datetime wall-clock timing starts after manifest loading/output reservation, before initialization; it ends after training, per-epoch validation, final checkpoint reload, split-loss evaluation, separate output collection and exports. It excludes earlier preflight and final marker/inventory writes. No file-timestamp estimate is substituted for this record.
+
+The benchmark omitted demonstrated evaluation/export/reload work and sampled only 20 warmed steps. There are no primary epoch/phase timings or active-process CPU-time measurements to apportion the gap. Suspension, contention, thermal/power throttling or memory pressure are plausible but not established. Do not equate the full recorded interval with uninterrupted training, or apply this K5 duration to K7 as a measured estimate. Console fallback/CPU notices did not prevent completion; empty warnings.json covers determinism warnings only. Primary peak memory was not recorded.
+
+### Requirements before subsequent execution
+
+One CPU run is demonstrably possible, but a ten-run local schedule is not established as practical. Senior developer/BRAIN should assess sustained compute, stable power, fresh RAM/disk headroom and output retention, then separately authorize any next fixed-seed run. Existing runner already works on CPU and has no explicit GPU-required code guard; preserve clean-worktree, configuration, source/manifest and non-overwrite guards. No primary runner/device change was made here.
+
+Assess progress/phase logging, durable epoch records and interruption recovery as separate engineering work before another long run. Current history is held in memory until all epochs finish; only final weights are saved, without resume. An interruption can lose hours of progress. A future recovery design would need reviewed optimizer/RNG/data-order handling, not just weight loading. No logging, checkpoint or resume changes were implemented in this validation task. Completed outputs must never be overwritten. The senior developer handles Git; these documentation edits remain unstaged and must be reviewed before a guarded launch.
+
+Scientific stability remains unanswered until independent runs are aligned on validation and compared under the frozen test protocol. The current metrics and scientific_evidence=null do not themselves settle that question.
+
 ## Follow-up audit: 2026-09-05
 
 Primary execution is currently blocked. Windows hardware queries report Intel UHD Graphics 620 (driver `31.0.101.2125`, dated 2023-05-24) and three `MS Idd Device` indirect-display adapters. No NVIDIA adapter was listed, and `nvidia-smi` was not found on PATH. This is a hardware inventory finding independent of TensorFlow's empty GPU list; Intel graphics are physically present. WSL commands report that WSL is not installed.
