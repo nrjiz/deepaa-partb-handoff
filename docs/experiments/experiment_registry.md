@@ -41,6 +41,14 @@ status: "PLANNED"  # PLANNED | RUNNING | COMPLETED | FAILED | EXCLUDED
 
 Add newest entries below this heading. A `COMPLETED` status means artifacts exist and checks passed; it does not mean a hypothesis was supported.
 
+### 2026-09-09 preparation: stability_v1_K5_seed211
+
+Status remains **PLANNED / NOT STARTED**. Intended output: `research/runs/stability_v1/K5/seed_211`; intended external log: `C:/Users/UserPc/Desktop/ai/primary_K5_seed211_20260909_b6e42f.log` (both absent at preparation). Execution revision is **pending user review/commit**, not the preparation HEAD `42ec30f84cf826a2a3465fbb0778af4b04fc0bd5` or seed113's execution revision. No metric-driven tuning: K5/latent4/seed211, journal_v1, RGB128 float32, batch32, 50 epochs, Adam0.001, reconstruction1 + CE1 + KL0.01 + simplex1; no early stopping, entropy training term or temperature scaling; final epoch checkpoint and existing deterministic controls.
+
+Research-only instrumentation records flushed progress/phase timing and atomically updates same-schema training history after each epoch; it adds no model calls and is not resume support. Engineering equivalence evidence: `C:/Users/UserPc/Desktop/ai/seed211_preparation_20260909_b6e42f/equivalence/comparison.json` (six steps per old/new path, two small epochs, exact losses/order/history/weights/optimizer state). All data used by this test came from the training manifest. This is not a second scientific run. Resource and recovery limitations plus the proposed manual command are in `research/compute_readiness.md`.
+
+Subsequent analysis, only after seed211 is trained and validated: seed113 stays the predetermined reference. Match validation coefficient columns using Hungarian assignment with `1 - Pearson correlation`; if either population standard deviation is <=1e-8, use frozen `2 * MAE` fallback. Apply that permutation unchanged to test outputs, preserving raw numbering, cost/permutation evidence and original artifacts. Use prescribed per-lesion coefficient correlations/MAE/vector L1/dominant agreement, semantic base-2 Jensen-Shannon divergence, nearest top-10 Jaccard and diagnosis consistency, decoded RGB SSIM (range1) and secondary pixel MSE. Average coefficients within the 748 test lesions; paired lesion bootstrap for vector L1/agreement uses 1,000 resamples, seed2026, two-sided percentile95%. No seed-level confidence interval from four comparisons; the full registered matrix is still incomplete. No alignment/test comparison has been run in this task.
+
 ### Accepted archetype_stability_v1 matrix
 
 Originally protocol-only; as of 2026-09-09 the K5/seed113 reference is completed and validated, with the other nine entries still planned. All entries use accepted immutable split `journal_v1`, 128×128 RGB input, batch 32, 50 epochs, Adam at 0.001, baseline loss weights `1/1/0.01/1`, and no early stopping. Seed 113 is the predetermined reference within each K.

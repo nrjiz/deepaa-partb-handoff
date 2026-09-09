@@ -2,6 +2,14 @@
 
 Last audited: **2026-09-09** (first primary CPU run validation).
 
+## Second-run preparation: 2026-09-09
+
+K5/latent4/seed211 remains **PLANNED, NOT STARTED**. Preparation began from clean HEAD `42ec30f84cf826a2a3465fbb0778af4b04fc0bd5`; there were no pre-existing changes. Research-runner instrumentation now adds flushed phase/epoch/batch telemetry and incremental atomic epoch history without changing the protected model, objective, seeds, data ordering or final checkpoint rule. New `progress.jsonl` is closed before inventory hashing; existing final history columns are retained. This preserves progress records, **not resumable training**.
+
+Bounded old/new loop comparison used fresh seed211 processes, 65 training images and 10 evaluation images drawn solely from frozen training membership, two miniature epochs and six optimizer steps per path. Losses, batch sequence, final weights, optimizer state and history matched exactly (maximum difference 0); epoch-1 history was present before epoch 2. Evidence: `C:/Users/UserPc/Desktop/ai/seed211_preparation_20260909_b6e42f/equivalence/comparison.json`. This is engineering evidence, not a primary run or full-trajectory guarantee. See `research/compute_readiness.md` for checks, limitations, recovery assessment and proposed manual command.
+
+Reference seed113 and its external log match the previous validation hashes; manifests/source unchanged. All 10,015 manifest image paths exist in the two documented archive folders. Intended seed211 output/log are unused. RAM availability was low and variable during preparation, so no launch-readiness guarantee follows from this snapshot. User review/commit, final clean-revision preflight, fresh resource/process checks and separate manual launch are required. No comparison or primary training was executed.
+
 ## Current execution update: 2026-09-09
 
 The first primary reference run, `research/runs/stability_v1/K5/seed_113`, completed all 50 epochs at execution revision `0e32c8d469be141d30e627219aeac7ee253a34fa`. Validation verdict: **PASS WITH LIMITATIONS**. All 21 inventoried artifacts match recorded hashes/sizes; protected source and frozen manifests match; independent checkpoint reload succeeds with 30 finite tensors and exact decoded-archetype reproduction. Validation/test mappings match manifest order, coefficient/latent arrays pass finite/simplex checks, and nearest-image/class tables reproduce from saved arrays. No required single-run artifact is missing.

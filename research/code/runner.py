@@ -12,6 +12,7 @@ import traceback
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from time import perf_counter
 
 import numpy as np
 import pandas as pd
@@ -41,6 +42,7 @@ from .output_contract import (
     write_json,
 )
 from .stability_metrics import coefficient_weighted_class_distribution, nearest_real_top_n
+from .progress import Progress, write_incremental_history
 
 
 @dataclass
@@ -219,6 +221,8 @@ def _checkpoint_reload_check(repository: Path, checkpoint: Path, k: int, trained
 
 def execute_run(spec: RunSpec) -> Path:
     """Execute one primary run or one explicitly marked non-scientific smoke run."""
+    progress = Progress()
+    progress.phase("preflight")
     repository = spec.repository.expanduser().resolve()
     if spec.k not in PRIMARY_K:
         raise ValueError(f"stability_v1 K must be one of {PRIMARY_K}; got {spec.k}")
@@ -240,6 +244,7 @@ def execute_run(spec: RunSpec) -> Path:
             "Primary runs require a clean versioned worktree; current git status:\n"
             + implementation_git_status
         )
+    progress.phase("loading_manifests")
     frames = load_journal_v1(
         spec.train_manifest,
         spec.validation_manifest,
@@ -257,6 +262,8 @@ def execute_run(spec: RunSpec) -> Path:
     )
     started = datetime.now(timezone.utc)
     try:
+        progress.bind(run_dir)
+        progress.phase("initialization_and_dataset_setup")
         determinism = configure_determinism(spec.seed)
         import tensorflow as tf
 
@@ -311,12 +318,21 @@ def execute_run(spec: RunSpec) -> Path:
         )
         epochs = spec.smoke_epochs if spec.smoke_test else EPOCHS
         history_rows: list[dict] = []
+        epoch_durations: list[float] = []
+        steps_per_epoch = (len(active_frames["train"]) + BATCH_SIZE - 1) // BATCH_SIZE
         for epoch in range(1, epochs + 1):
+            epoch_started = perf_counter()
+            progress.emit("epoch_start", epoch=epoch, epochs=epochs)
+            progress.phase("training")
             train_rows: list[list[float]] = []
-            for images, labels in train_dataset:
+            for batch, (images, labels) in enumerate(train_dataset, start=1):
                 values = baseline.train_step(model, optimizer, images, labels, cfg)
                 train_rows.append([float(value.numpy()) for value in values])
+                if batch == 1 or batch % 50 == 0 or batch == steps_per_epoch:
+                    progress.emit("batch", epoch=epoch, epochs=epochs,
+                                  batch=batch, batches=steps_per_epoch)
             train_metrics = _mean_components(train_rows)
+            progress.phase("epoch_validation")
             validation_metrics = _evaluate_losses(baseline, model, cfg, validation_dataset)
             history_rows.append(
                 {
@@ -325,10 +341,16 @@ def execute_run(spec: RunSpec) -> Path:
                     **{f"validation_{key}": value for key, value in validation_metrics.items()},
                 }
             )
-        pd.DataFrame(history_rows).to_csv(
-            run_dir / "training_history.csv", index=False, lineterminator="\n"
-        )
+            progress.phase("epoch_history_export")
+            write_incremental_history(run_dir, history_rows)
+            epoch_durations.append(perf_counter() - epoch_started)
+            progress.emit("epoch_end", epoch=epoch, epochs=epochs,
+                          duration_seconds=epoch_durations[-1],
+                          train=train_metrics, validation=validation_metrics,
+                          remaining_training_loop_seconds=sum(epoch_durations) / epoch * (epochs - epoch),
+                          eta_scope="remaining epochs including validation/history; excludes final evaluation/export")
 
+        progress.phase("checkpoint_export_and_reload")
         checkpoint = run_dir / "final.weights.h5"
         model.save_weights(str(checkpoint))
         reload_result = _checkpoint_reload_check(repository, checkpoint, spec.k, model)
@@ -339,10 +361,12 @@ def execute_run(spec: RunSpec) -> Path:
         split_metrics: dict[str, dict] = {}
         outputs: dict[str, dict] = {}
         for name, frame in active_frames.items():
+            progress.phase(f"final_{name}_loss_evaluation")
             ordered_dataset = make_tf_dataset(
                 frame, IMAGE_SIZE, BATCH_SIZE, shuffle=False, seed=None
             )
             split_metrics[name] = _evaluate_losses(baseline, model, cfg, ordered_dataset)
+            progress.phase(f"final_{name}_output_collection")
             ordered_dataset = make_tf_dataset(
                 frame, IMAGE_SIZE, BATCH_SIZE, shuffle=False, seed=None
             )
@@ -353,6 +377,7 @@ def execute_run(spec: RunSpec) -> Path:
             split_metrics[name]["reconstruction_mse_per_pixel"] = float(
                 outputs[name]["reconstruction_mse_per_pixel"].mean()
             )
+        progress.phase("artifact_export")
         write_json(run_dir / "split_metrics.json", split_metrics)
         _save_partition_outputs(run_dir, "validation", active_frames["validation"], outputs["validation"])
         _save_partition_outputs(run_dir, "test", active_frames["test"], outputs["test"])
@@ -384,6 +409,8 @@ def execute_run(spec: RunSpec) -> Path:
             "determinism": determinism.to_dict(),
         }
         write_json(run_dir / "runtime_environment.json", runtime)
+        # Close telemetry before hashing it; no progress-file writes after sealing.
+        progress.phase(None)
         _write_artifact_inventory(run_dir)
         after_source_hash = source_sha256(source)
         if after_source_hash != before_source_hash:
@@ -398,6 +425,7 @@ def execute_run(spec: RunSpec) -> Path:
                 "baseline_source_sha256_after": after_source_hash,
             },
         )
+        print(f"COMPLETED: {run_dir}", flush=True)
         return run_dir
     except Exception as exc:
         mark_failed(

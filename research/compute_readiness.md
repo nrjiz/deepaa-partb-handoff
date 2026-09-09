@@ -1,5 +1,53 @@
 # Gate 1 compute readiness
 
+## Seed211 instrumentation and preparation: 2026-09-09
+
+**Preparation only; no primary launch.** Initial HEAD `42ec30f84cf826a2a3465fbb0778af4b04fc0bd5` was clean, with no existing user changes. The previous validation documentation is committed. The new execution revision is not known until the senior developer reviews/commits these unstaged changes. All clean-worktree/source/manifest/configuration/output guards remain intact. Protected source, frozen manifests, completed seed113 artifacts and original external log are unchanged.
+
+### Instrumentation
+
+`research/code/runner.py` now uses `research/code/progress.py` for flushed JSON console messages plus a new `progress.jsonl` in the exclusively reserved active run directory. Preflight/loading records are buffered until reservation; failures before reservation still appear on the console. Phase start/end records cover manifest loading, initialization/dataset setup, training, per-epoch validation/history, checkpoint export/reload, final split-loss evaluation, output collection and artifact export. Durations/elapsed values use perf_counter; UTC timestamps are included. These are elapsed intervals, not active CPU time, and can include scheduling/idle effects.
+
+Each epoch logs start/end, number out of 50, duration, already-computed train/validation losses and elapsed time. Batch progress occurs at batch1, each multiple of50 and the final batch (251 for primary training). No extra inference or RNG access is added. Remaining-loop ETA is mean completed-epoch duration times remaining epochs; it includes repeated validation/history and explicitly excludes final evaluation/export overhead. It is an approximation, not a finish-time promise.
+
+After every completed epoch, a temporary CSV is atomically replaced into `training_history.csv` using the original final columns/order/float formatting. Only the owned active run history is replaced; completed/nonempty runs still refuse reuse. This preserves completed-epoch observations but not model/optimizer state. File close/atomic replacement is not a power-loss durability guarantee; an interrupted write may leave a temporary file. `progress.jsonl` is closed before the existing inventory writer hashes it. No progress-file writes occur after sealing; the final completion message is console-only. Other final artifact schemas and the model/evaluation call order remain unchanged.
+
+### Verification and resource evidence
+
+Evidence root: `C:/Users/UserPc/Desktop/ai/seed211_preparation_20260909_b6e42f/`. `equivalence/comparison.json` reports exact equality between loop statements extracted from committed pre-change runner and instrumented runner. Fresh sequential seed211 workers each performed two miniature epochs over 65 training images (32/32/1), with 10 other training-manifest images used for engineering evaluation. All six step-loss vectors, 30 final model tensors, 62 optimizer variables (including iteration6), batch-data hashes and final histories match with maximum difference0. This is stricter than existing numerical tolerances; epoch-1 history was verified before epoch 2 and progress/ETA records checked. No held-out image performance was inspected. Worker logs, states, summaries and incremental histories are retained separately from primary outputs.
+
+The test directly exercises extracted training-loop statements; it does not invoke a primary runner or weaken its guards. It is not a full epoch, benchmark, long-run proof, cross-device guarantee or repeat of final image exports. The extracted block includes the following checkpoint-phase announcement, but no checkpoint save/reload is executed by this loop test. Unit tests separately cover phase output, incremental history, refusal of an existing progress file and inclusion in the checksum inventory. The full research suite passed **29/29 tests** in 53.00 s, with 56 dependency deprecation warnings, no failures. Results are recorded in `pytest.xml` and `REPORT.md` in the evidence root. `git diff --check` passed; all seven changed/new repository files remain unstaged.
+
+`preflight.json` verifies the protected source and three manifests, all 8,011/1,002/1,002 image paths, the unchanged seed113 run/log against prior validation hashes, interpreter and unused intended output/log. Discovered dataset folders are directly under archive: `HAM10000_images_part_1` and `HAM10000_images_part_2`. This task did not repeat the all-image JPEG decoding benchmark; the bounded test decoded its 75 training images through existing preprocessing. Interpreter: `C:/Users/UserPc/Desktop/ai/.venvs/deepaa_data2026_repro/Scripts/python.exe`, Python3.13.3, TensorFlow2.21.0, Keras3.15.1, CPU only; no dependency/environment changes.
+
+Resource snapshots: 15.85 GiB physical RAM; only about0.88 GiB available before the bounded test, about0.59 GiB at one in-test inspection, and1.96 GiB in the saved preflight snapshot (87% memory load). Disk free in that snapshot:25,354,584,064 bytes (23.61 GiB). No unrelated Python training process was observed before testing; worker execution was sequential. Memory availability is an operational limitation, not a protocol issue. Recheck RAM/disk, stable power and absence of competing training immediately before launch; do not terminate user processes or lower frozen settings. The seed11314h27m interval is planning evidence, not a seed211 runtime guarantee.
+
+### Interruption recovery assessment — not implemented
+
+Exact epoch-boundary continuation would need all model variables; Adam slot variables, iteration and learning-rate state; completed epoch and history; Python/NumPy RNG state; the actual TensorFlow/Keras random-op state/counters used by initialization and protected `tf.random.normal` posterior sampling; and dataset shuffle iteration/order state. The current seeded tf.data shuffle uses reshuffle_each_iteration=True with buffer min(N,5000), parallel decode/prefetch and partial batches retained. Restarting the seed or skipping an arbitrary number of batches is not evidence that the next epoch order/random samples match. The protected model has no dropout or BatchNorm moving-statistic layers; z_pred is batch-derived, not a separate persistent parameter, but all model variables must still be captured.
+
+Proposed separately reviewed approach: define a transaction boundary after epoch validation/history, save a versioned recovery bundle with model+optimizer checkpoint, epoch/global-step/history, manifests/source/configuration/environment provenance and verified RNG/iterator state; publish it atomically in a non-overwriting recovery location. Do not assume tf.train.Checkpoint automatically captures this runner's legacy stateful tf.random.normal counters or the reshuffling sequence across newly constructed epoch iterators. Establish a supported capture/restore strategy first; if exact preservation requires changing random/data semantics, that needs separate review, not a silent implementation here. Test interrupted-versus-uninterrupted continuation across epoch boundaries for exact next-batch order, random draws, losses, optimizer state and weights, plus incomplete-write/refusal cases. Weights-only saves are not equivalent continuation. No resume implementation is authorized or included.
+
+### Proposed subsequent Windows CMD command — DO NOT RUN YET
+
+The user must review and commit these changes, then perform final clean-revision preflight and manually launch only after authorization. Verify the new HEAD and clean `git status --short --untracked-files=all`; do not substitute the preparation HEAD as the execution revision. Both proposed paths below were absent during preparation; recheck at launch. Keep the reference run untouched. The CMD existence checks prevent ordinary reuse, not a concurrent-launch race; ensure one launcher only.
+
+```bat
+cd /d "C:\Users\UserPc\Desktop\ai\Deep-Archetypal-Analysis-on-HAM10000"
+set "PYTHONHASHSEED=211"
+set "TF_DETERMINISTIC_OPS=1"
+set "PYTHONDONTWRITEBYTECODE=1"
+if exist "C:\Users\UserPc\Desktop\ai\Deep-Archetypal-Analysis-on-HAM10000\research\runs\stability_v1\K5\seed_211" (
+  echo STOP: intended output already exists.
+) else if exist "C:\Users\UserPc\Desktop\ai\primary_K5_seed211_20260909_b6e42f.log" (
+  echo STOP: intended log already exists.
+) else (
+  "C:\Users\UserPc\Desktop\ai\.venvs\deepaa_data2026_repro\Scripts\python.exe" -B -u research\tools\run_stability_one.py --k 5 --seed 211 --output-dir "C:\Users\UserPc\Desktop\ai\Deep-Archetypal-Analysis-on-HAM10000\research\runs\stability_v1\K5\seed_211" --image-dirs "C:\Users\UserPc\Downloads\archive\HAM10000_images_part_1" "C:\Users\UserPc\Downloads\archive\HAM10000_images_part_2" > "C:\Users\UserPc\Desktop\ai\primary_K5_seed211_20260909_b6e42f.log" 2>&1
+)
+```
+
+No early stopping/entropy objective/temperature scaling or checkpoint selection change: K5/latent4/seed211, journal_v1, RGB128 float32, batch32, 50 epochs, Adam0.001, reconstruction1 + CE1 + KL0.01 + simplex1, final epoch and existing deterministic controls. Incremental history is not permission to resume a failed attempt. After completion and separate validation, use seed113 reference and validation-only Hungarian matching with frozen Pearson/degeneracy costs, then the unchanged test mapping and prescribed lesion aggregation/bootstrap/semantic/nearest/visual metrics. Preserve raw outputs and do not perform comparison now; see the registry for the analysis plan.
+
 ## First primary CPU outcome: 2026-09-09
 
 The older blocked/readiness statements below are historical snapshots. Explicitly authorized local CPU execution has now completed one primary run: `research/runs/stability_v1/K5/seed_113`, revision `0e32c8d469be141d30e627219aeac7ee253a34fa`, 50 epochs with unchanged K5/latent4/seed113, RGB128, batch32, Adam0.001, float32 and baseline objective. Validation verdict **PASS WITH LIMITATIONS**: inventory/source/manifests match, history complete/finite, checkpoint reload and required raw exports pass. See `../docs/experiments/experiment_registry.md` for metrics/definitions and `C:/Users/UserPc/Desktop/ai/validation_K5_seed113_20260909/REPORT.md` plus sibling `checks.json` for the full audit. External log: `C:/Users/UserPc/Desktop/ai/primary_K5_seed113_0e32c8d_20260905_a7f19c.log`. All original evidence is unchanged.
