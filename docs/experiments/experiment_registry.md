@@ -1,6 +1,6 @@
 # Experiment registry
 
-One primary run is registered as completed and validated as of 2026-09-09. Copy the template below once per run. Do not overwrite completed entries; update `status` and append dated notes.
+Two primary runs and one reference/candidate stability comparison are completed and validated as of 2026-09-13. Copy the template below once per run. Do not overwrite completed entries; update `status` and append dated notes.
 
 ## Run template
 
@@ -41,6 +41,44 @@ status: "PLANNED"  # PLANNED | RUNNING | COMPLETED | FAILED | EXCLUDED
 
 Add newest entries below this heading. A `COMPLETED` status means artifacts exist and checks passed; it does not mean a hypothesis was supported.
 
+### 2026-09-13: seed211 validation and K5 seed113-versus-seed211 comparison
+
+Seed211 status: **COMPLETED; validation PASS WITH LIMITATIONS**. Recorded execution revision `f097f2f9e6ad72464685dacca59ba95ba273ab33`, pre-run status empty; journal_v1, K5/latent4/seed211, full 8,011/1,002/1,002 partitions, RGB128 float32, batch32, 50 epochs, Adam0.001, weights1/1/0.01/1, no entropy/temperature objective, no early stopping, final epoch. Unchanged source/objective imported through the existing adapter. Run: `research/runs/stability_v1/K5/seed_211`; checkpoint `final.weights.h5`, SHA-256 `eaf2938382f6b2261a7870cd1a67bd6e6389a93f91876a94841c3e2766f278ed`. Original reload reports loaded/passed true, 30 tensors, maximum difference0; fresh read-only reload reproduces saved decoded arrays exactly.
+
+All22 inventory hashes/sizes match;24 total files including inventory and completion. Epoch sequence1–50 and losses finite; progress confirms50 epoch ends and recorded batch milestones through251. Validation/test mappings match frozen row order; coefficient shapes1002x5, latent shapes1002x4, finite/nonnegative coefficients, maximum row-sum errors1.7881393e-7/2.3841858e-7 (<1e-5). Five decoded PNGs,50 nearest rows and35 class rows validated. No required artifact missing. Runtime UTC2026-09-09T12:45:27.945771+00:00 to2026-09-10T06:07:58.195499+00:00 =62,550.249728s; no inference of uninterrupted compute. `scientific_evidence:null` remains the primary writer default, not a validity verdict. Seed113 hashes match its prior validation; neither run/log was changed. Validation does not replay training or independently reevaluate all raw-image metrics.
+
+Saved final seed211 checkpoint train/validation/test metrics (loss scalars are equal-weight batch averages; pixel MSE and accuracy are image-weighted):
+
+| Metric | Train | Validation | Test |
+|---|---:|---:|---:|
+| Total | 287.308911 | 313.885802 | 315.510196 |
+| Reconstruction sum | 285.571506 | 312.120415 | 313.751657 |
+| CE | 0.882847 | 0.917459 | 0.925103 |
+| KL before0.01 weight | 18.033367 | 18.032235 | 18.033089 |
+| Simplex | 0.674225 | 0.667602 | 0.653107 |
+| Pixel MSE | 0.005802981 | 0.006347880 | 0.006363141 |
+| Accuracy | 0.680315 | 0.684631 | 0.684631 |
+
+Analysis implementation revision: `f097f2f9e6ad72464685dacca59ba95ba273ab33`, initially clean. Existing `align_validation_coefficients.py` and `evaluate_stability_pair.py` ran without modification after readiness checks. Existing decision history shows D-002 changed from PROPOSED to SUPERSEDED and D-015/D-016 to ACCEPTED in `7911e8643495a2f34820ca0adedbea1f322ab8da`; no new historical approval was invented. Older “not executed” status text was stale, not a conflicting matching rule.
+
+Alignment fitted on identical validation image order only: zero-based candidate columns `[3,2,4,1,0]` in reference order, equivalently reference raw1–5 maps to candidate raw4,3,5,2,1. All25 costs use `1-Pearson`; zero cells trigger population-std<=1e-8 fallback. Cost/method matrices, explicit fallback mask, assignment and permutation direction are saved. That same permutation was applied unchanged to test; no fixed-vertex distance or test/visual optimization selected correspondence.
+
+Held-out metrics by reference archetype (coefficients averaged within748 lesions; semantic distributions coefficient-weighted over1002 images; nearest sets contain10 test images; visual metrics compare decoded RGB128 images at range1):
+
+| Ref / candidate raw | Lesion Pearson | Lesion MAE | Semantic JS2 | Top10 Jaccard | Top10 dx JS2 | RGB SSIM | Pixel MSE |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| A1 / A4 | 0.701773 | 0.066457 | 0.002072 | 0.111111 | 0.052123 | 0.658692 | 0.065521 |
+| A2 / A3 | 0.787872 | 0.053120 | 0.001160 | 0.176471 | 0.000000 | 0.801883 | 0.023640 |
+| A3 / A5 | 0.490117 | 0.084139 | 0.001144 | 0.052632 | 0.051899 | 0.699238 | 0.091902 |
+| A4 / A2 | 0.567261 | 0.059737 | 0.002206 | 0.052632 | 0.162256 | 0.597273 | 0.097906 |
+| A5 / A1 | 0.050737 | 0.084467 | 0.001490 | 0.000000 | 0.311278 | 0.647862 | 0.089973 |
+
+Lesion coefficient-vector L1 mean0.347919627 (95% interval0.336131114–0.358744425); dominant agreement0.506684492 (0.469251337–0.541443850). Only these two quantities received the frozen paired lesion bootstrap:1,000 resamples, seed2026, percentile2.5/97.5. Mean semantic JS2=0.001614554. All five test correlations are defined; the tool preserves undefined correlations as null/false rather than substituting values. No bootstrap was added for semantic, nearest, visual or per-column Pearson metrics.
+
+Interpretation, distinct from findings: correspondence varies across archetypes; low A5 correlation and limited top10 overlap remain reported. Small diagnosis-distribution divergence does not establish interchangeable archetypes or clinical validity. One pair cannot establish overall reproducibility; four candidate comparisons per K are still required before the registered cross-seed summaries (no seed-level inferential CI).
+
+Derived root `research/analysis/stability_v1/K5_113_vs_211_20260913/`: `alignment/` contains original tool cost/method matrices and aligned coefficients/permutation; `test/` contains stability summary and coefficient/semantic/nearest/visual tables; `presentation/` contains explicit fallback mask, assignment/direction, concise metrics and `decoded_archetypes_aligned.svg` with unmodified embedded PNGs. These are ignored local analysis artifacts, not automatically included in Git commits; preserve them separately. External validation/report root: `C:/Users/UserPc/Desktop/ai/stability_pair_20260913/` (`checks.json`, `readiness.json`, scripts, `REPORT.md`). No original run artifacts, existing analyses, or prior reports overwritten. No training or manuscript writing. Next: senior review this one pair and separately authorize remaining frozen runs; no retuning/rematching from these test results.
+
 ### 2026-09-09 preparation: stability_v1_K5_seed211
 
 Status remains **PLANNED / NOT STARTED**. Intended output: `research/runs/stability_v1/K5/seed_211`; intended external log: `C:/Users/UserPc/Desktop/ai/primary_K5_seed211_20260909_b6e42f.log` (both absent at preparation). Execution revision is **pending user review/commit**, not the preparation HEAD `42ec30f84cf826a2a3465fbb0778af4b04fc0bd5` or seed113's execution revision. No metric-driven tuning: K5/latent4/seed211, journal_v1, RGB128 float32, batch32, 50 epochs, Adam0.001, reconstruction1 + CE1 + KL0.01 + simplex1; no early stopping, entropy training term or temperature scaling; final epoch checkpoint and existing deterministic controls.
@@ -51,12 +89,12 @@ Subsequent analysis, only after seed211 is trained and validated: seed113 stays 
 
 ### Accepted archetype_stability_v1 matrix
 
-Originally protocol-only; as of 2026-09-09 the K5/seed113 reference is completed and validated, with the other nine entries still planned. All entries use accepted immutable split `journal_v1`, 128×128 RGB input, batch 32, 50 epochs, Adam at 0.001, baseline loss weights `1/1/0.01/1`, and no early stopping. Seed 113 is the predetermined reference within each K.
+Originally protocol-only; as of 2026-09-13 K5/seed113 and K5/seed211 are completed and validated, with the other eight entries still planned. All entries use accepted immutable split `journal_v1`, 128×128 RGB input, batch 32, 50 epochs, Adam at 0.001, baseline loss weights `1/1/0.01/1`, and no early stopping. Seed 113 is the predetermined reference within each K.
 
 | Experiment ID | K | Latent dimension | Seed | Role | Status |
 |---|---:|---:|---:|---|---|
 | `stability_v1_K5_seed113` | 5 | 4 | 113 | reference | COMPLETED |
-| `stability_v1_K5_seed211` | 5 | 4 | 211 | candidate | PLANNED |
+| `stability_v1_K5_seed211` | 5 | 4 | 211 | candidate | COMPLETED |
 | `stability_v1_K5_seed307` | 5 | 4 | 307 | candidate | PLANNED |
 | `stability_v1_K5_seed401` | 5 | 4 | 401 | candidate | PLANNED |
 | `stability_v1_K5_seed503` | 5 | 4 | 503 | candidate | PLANNED |

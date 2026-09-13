@@ -2,6 +2,8 @@
 
 Status: **ACCEPTED AND PRE-REGISTERED; implemented; no primary results**.
 
+Execution update (2026-09-13): the status above records the original implementation checkpoint. Two primary K5 runs (seeds113/211) and their first validation-only Hungarian/test comparison are now completed and validated; see the dated experiment registry. One comparison does not complete the frozen multi-seed study. No methodological change accompanies this status update.
+
 Canonical protocol: `research/protocols/archetype_stability_v1.md`. Machine-readable record: `research/configs/archetype_stability_v1.json`.
 
 ## Fixed design

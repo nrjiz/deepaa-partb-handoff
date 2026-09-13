@@ -2,6 +2,8 @@
 
 Status: **READY FOR PRIMARY TRAINING**.
 
+Execution update (2026-09-13): K5/seed113 and seed211 are completed and validated; the first validation-aligned, held-out pair analysis has executed under D-015–D-018. See `docs/experiments/experiment_registry.md` and `research/analysis/stability_v1/K5_113_vs_211_20260913/`. This is one pair, not a completed multi-seed study. The no-run/readiness statements below are preserved as the original Gate1 infrastructure checkpoint, not current execution status.
+
 No primary stability run has been executed. The implemented infrastructure is ready for a future clean, versioned launch; the current CPU-only machine remains an impractical target for ten full runs.
 
 ## Accepted design

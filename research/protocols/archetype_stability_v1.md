@@ -2,6 +2,8 @@
 
 Status: **ACCEPTED AND PRE-REGISTERED; NOT EXECUTED**.
 
+Execution annotation (2026-09-13; methodology unchanged): the heading and no-run statement below preserve the original preregistration checkpoint. K5 seeds113/211 are now completed and validated, and one validation-aligned test comparison has executed. Current execution evidence is in `docs/experiments/experiment_registry.md` and `research/analysis/stability_v1/K5_113_vs_211_20260913/`. The full ten-run/eight-comparison study is not complete; this annotation does not amend its scientific rules.
+
 ## Scientific question
 
 When DeepAA is retrained independently on the same leak-free HAM10000 split, does it recover consistent archetypal semantics after accounting for archetype permutation?

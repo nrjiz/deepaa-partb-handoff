@@ -1,6 +1,16 @@
 # Project state
 
-Last audited: **2026-09-09** (first primary CPU run validation).
+Last audited: **2026-09-13** (second-run validation and first stability pair).
+
+## First held-out stability comparison: 2026-09-13
+
+Seed211 completed all 50 epochs at execution revision `f097f2f9e6ad72464685dacca59ba95ba273ab33`, recorded clean before launch. Artifact validation is **PASS WITH LIMITATIONS**: 22 inventory entries match checksums/sizes (24 total run files), all epochs finite, manifests/source unchanged, mappings in frozen order, finite simplex coefficients/latents, original checkpoint reload exact and independent reload reproduces decoded archetypes exactly. Recorded elapsed interval is 62,550.249728 s (17h22m30.250s), not a claim of uninterrupted active CPU time. Seed113's previous validation was reused after rechecking all original hashes.
+
+Existing validation-only Hungarian and test tools were executed without code or methodology changes. D-002 already became SUPERSEDED in `7911e864...`; accepted D-015/D-016 govern matching. Candidate raw archetypes `[4,3,5,2,1]` align to reference `[1,2,3,4,5]` (zero-based permutation `[3,2,4,1,0]`); all 25 cells use Pearson, zero fallback cells. Test analysis uses this fixed permutation, not a test-selected or visual match.
+
+For 748 test lesions, coefficient-vector L1 mean is **0.347920** (paired lesion bootstrap95% interval **0.336131–0.358744**); dominant agreement **0.506684** (**0.469251–0.541444**). Matched lesion Pearson values are **0.701773, 0.787872, 0.490117, 0.567261, 0.050737**, all defined. Mean image-coefficient-weighted semantic JS(base2) is **0.001615**; nearest-image and decoded-image metrics are retained per archetype in the registry/report. These are one pair's numerical findings, not overall reproducibility, clinical validity or a completed multi-seed study. Weak A5 correspondence was retained without tuning/rematching.
+
+Derived root: `research/analysis/stability_v1/K5_113_vs_211_20260913/` (alignment, test, presentation). Labeled side-by-side figure: `presentation/decoded_archetypes_aligned.svg`, embedding original PNG bytes. Separate validation/report: `C:/Users/UserPc/Desktop/ai/stability_pair_20260913/`. Original runs/logs are unchanged. Two of ten runs and one of eight planned reference/candidate comparisons are complete; remaining runs/comparisons require separate authorization. Historical readiness/no-results statements below describe earlier audit dates and are superseded by this dated update.
 
 ## Second-run preparation: 2026-09-09
 
@@ -193,4 +203,4 @@ No download is needed now. If reacquisition is needed later, the official ISIC 2
 
 ## NEXT ACTION
 
-Senior developer/BRAIN should review the first-run validation and decide progress logging, interruption recovery and sustained compute readiness before separately authorizing another fixed-seed run. Current runner has no resume support; interruption can lose unsaved training progress. The senior developer handles Git and must restore a reviewed clean worktree before any guarded launch. Do not launch anything from this validation task. Preserve accepted `journal_v1` and the completed reference run unchanged. Stability remains unanswered until independent runs are compared under the registered protocol.
+Senior developer/BRAIN should review the first K5 pair's validation, alignment and held-out findings, then separately authorize remaining frozen runs/comparisons without tuning from test results. Progress logging is implemented; resume is not, and interruption can lose model/optimizer progress despite incremental history. The senior developer handles Git and must restore a reviewed clean worktree before any guarded training launch. Preserve `journal_v1`, both completed runs and separate analysis evidence. This single comparison does not settle overall multi-seed stability.

@@ -16,6 +16,7 @@ Allowed statuses: **PROPOSED**, **ACCEPTED**, **REJECTED**, **SUPERSEDED**.
 - Decision: Align independent runs with Hungarian assignment using validation/reference coefficient-activation correlations.
 - Rationale: `Z_fixed` locations are predetermined and contain no run-specific semantic identity.
 - Superseded by: D-015 and D-016, which accept the reference rule, separation, threshold, and fallback.
+- Reconciliation audit (2026-09-13): Git commit `7911e8643495a2f34820ca0adedbea1f322ab8da` (2026-09-03) changed this entry from PROPOSED to SUPERSEDED and recorded D-015/D-016 as ACCEPTED. The older proposal is not the current authority; no new or backdated approval is inferred. Existing `research/code/alignment.py` and the alignment/evaluation CLIs implement those accepted decisions. The first K5 seed113-versus-seed211 comparison executed on 2026-09-13 after artifact validation; see the experiment registry. D-002 remains SUPERSEDED.
 
 ## D-003 — No diagnosis-label signal in amortization refinement
 
