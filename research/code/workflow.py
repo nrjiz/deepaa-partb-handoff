@@ -66,6 +66,7 @@ def resources(root):
 def classify(path):
     if not path.exists():return "MISSING"
     if (path/".RUNNING").exists():return "ACTIVE_OR_INTERRUPTED"
+    if (path/"RECOVERED_EXPORT.json").exists():return "RECOVERED_UNVERIFIED"
     if (path/"FAILED.json").exists():return "FAILED_PARTIAL"
     if (path/"COMPLETED.json").exists():return "COMPLETED_UNVERIFIED"
     return "PARTIAL"  # Includes empty pre-created directories; never silently reused.
@@ -110,7 +111,9 @@ class Workflow:
         self.session=None;self.child=None
         require(not self.state.is_relative_to(self.root),"Workflow state must be outside source repository")
 
-    def run_path(self,k,seed):return self.run_root/f"K{k}"/f"seed_{seed}"
+    def run_path(self,k,seed):
+        from .recovery import registered_path
+        return registered_path(self.root,self.state,k,seed,self.run_root/f"K{k}"/f"seed_{seed}")
 
     def pair_path(self,k,seed):
         if (k,seed)==(5,211):return self.analysis/"K5_113_vs_211_20260913"
@@ -243,6 +246,8 @@ class Workflow:
     def backup_run(self,report):
         k,s=report["K"],report["seed"]
         sources=dict(run=self.run_path(k,s),training_log=self.training_log(k,s),validation=Path(report["report"]))
+        if (self.run_path(k,s)/"RECOVERED_EXPORT.json").exists():
+            sources["original_failed_run"] = Path(read(self.run_path(k,s)/"RECOVERED_EXPORT.json")["original_run"])
         if (k,s)==(5,113):sources["prior_validation"]=self.root.parent/"validation_K5_seed113_20260909"
         if (k,s)==(5,211):sources["prior_validation"]=self.root.parent/"stability_pair_20260913"
         path=archive_unit(self.state/"archives",f"run_K{k}_seed{s}",sources,report["hashes"])
@@ -285,7 +290,7 @@ class Workflow:
             if state=="MISSING":
                 if not finish:continue
                 self.launch(k,seed)
-            elif state!="COMPLETED_UNVERIFIED":
+            elif state not in {"COMPLETED_UNVERIFIED", "RECOVERED_UNVERIFIED"}:
                 raise ValueError(f"K{k}/seed{seed}: {state}; preserve attempt, no training resume. Investigate manually.")
             report=self.validate(k,seed)
             run_reports.append(report);verified.add((k,seed))
@@ -331,7 +336,7 @@ class Workflow:
         for p in s["verified_pairs"]:require(hashes(Path(p["pair"]))==p["hashes"],"Pair changed after summary")
         token=sha(summary_dir/"summary.json")
         text=f'\n\n## Workflow execution update {datetime.now(timezone.utc).date()}\n\nStatus: **{s["status"]}**. Verified {len(s["verified_runs"])}/10 runs and {len(s["verified_pairs"])}/8 comparisons. Separate K5/K7 findings, raw metrics, defined denominators and lesion-bootstrap bounds: `{summary_dir}`. No clinical or overall reproducibility claim follows from execution completion.\n\nSummary SHA-256: `{token}`. Source pin: `{self.head}`. Workflow continuation is not model resume. Originals preserved; archives under `{self.state / "archives"}` are same-disk copies, not disk-failure protection.\n'
-        run_lines='\n'.join(f'- K{r["K"]}/seed{r["seed"]}: COMPLETED, validated; execution `{r["execution_revision"]}`; `{r["run"]}`.' for r in s["verified_runs"])
+        run_lines='\n'.join(f'- K{r["K"]}/seed{r["seed"]}: {r.get("export_status","COMPLETED")}, validated; execution `{r["execution_revision"]}`; `{r["run"]}`; degeneration `{r.get("degeneration")}`.' for r in s["verified_runs"])
         paths=[self.root/"docs/project_state.md",self.root/"docs/experiments/experiment_registry.md",self.root/"docs/gates/gate_1_stability_infrastructure.md",self.root/"docs/experiments/archetype_stability.md"]
         require(all(token not in p.read_text(encoding="utf-8") for p in paths),"This summary is already documented")
         # Explicit user-invoked final step only, never called from finish/summarize.

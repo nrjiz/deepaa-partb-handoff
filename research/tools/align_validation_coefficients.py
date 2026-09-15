@@ -23,8 +23,8 @@ def configuration(run_dir: Path) -> dict:
 
 
 def require_completed_primary(run_dir: Path) -> None:
-    if not (run_dir / "COMPLETED.json").is_file():
-        raise ValueError(f"Run lacks COMPLETED.json: {run_dir}")
+    from research.code.recovery import require_analysis_run
+    require_analysis_run(REPOSITORY, run_dir)
     if configuration(run_dir).get("status") != "PRIMARY RUN":
         raise ValueError(f"Alignment accepts completed primary runs only: {run_dir}")
 

@@ -46,21 +46,32 @@ def hashes(directory):
     return result
 
 
-def validate_run(root, run, k, seed, approved_heads):
+def validate_run(root, run, k, seed, approved_heads, *, _recovery=None):
     import numpy as np
     import pandas as pd
     from .constants import (BASELINE_SOURCE, BASELINE_SOURCE_SHA256, BASELINE_COMMIT,
                             MANIFEST_SHA256, LOSS_WEIGHTS, EXPECTED_CLASSES)
     from .alignment import validate_coefficients
     from .model_adapter import build_model
-    from .stability_metrics import nearest_real_top_n, coefficient_weighted_class_distribution
+    from .stability_metrics import (nearest_real_top_n, coefficient_weighted_class_distribution,
+        semantic_class_rows, semantic_distribution_details, degeneration_details)
 
     before = hashes(run)
-    require(not (run / ".RUNNING").exists() and not (run / "FAILED.json").exists(), "Active/failed run")
-    completion = read(run / "COMPLETED.json")
-    require(completion["status"] == "COMPLETED", "Not completed")
-    require(completion["baseline_source_sha256_before"] == completion["baseline_source_sha256_after"]
-            == sha(root / BASELINE_SOURCE) == BASELINE_SOURCE_SHA256, "Protected source mismatch")
+    if (run / "RECOVERED_EXPORT.json").exists():
+        from .recovery import verify_receipt
+        _recovery = verify_receipt(root, run)
+    if _recovery is not None:
+        from .recovery import verify_original
+        verify_original(root, Path(_recovery["original_run"]), _recovery["original_hashes"])
+        require((k, seed) == (5, 401), "Recovery authorization identity")
+        require(not (run/"COMPLETED.json").exists() and not (run/".RUNNING").exists(), "Recovery is not ordinary completion")
+    else:
+        require(not (run / ".RUNNING").exists() and not (run / "FAILED.json").exists(), "Active/failed run")
+        completion = read(run / "COMPLETED.json")
+        require(completion["status"] == "COMPLETED", "Not completed")
+        require(completion["baseline_source_sha256_before"] == completion["baseline_source_sha256_after"]
+                == sha(root / BASELINE_SOURCE) == BASELINE_SOURCE_SHA256, "Protected source mismatch")
+    require(sha(root / BASELINE_SOURCE) == BASELINE_SOURCE_SHA256, "Protected source mismatch")
     config = read(run / "configuration.json")
     expected = dict(K=k, latent_dimension=k-1, seed=seed, epochs=50, batch_size=32,
                     image_shape=[128,128,3], learning_rate=.001, early_stopping=False,
@@ -91,9 +102,10 @@ def validate_run(root, run, k, seed, approved_heads):
         require(sha(path) == MANIFEST_SHA256[path.name] == config["manifests"][part]["sha256"], "Manifest hash")
         require(config["manifests"][part]["full_rows"] == config["manifests"][part]["used_rows"] == count, "Subset run")
         manifests[part] = pd.read_csv(path)
-    inv = read(run / "artifact_inventory.json")["artifacts"]
+    inv = read(run / "artifact_inventory.json")["artifacts"] if _recovery is None else []
     require(len({r["path"] for r in inv}) == len(inv), "Duplicate inventory path")
-    require(set(before) == {r["path"] for r in inv} | {"artifact_inventory.json", "COMPLETED.json"}, "Inventory file set")
+    if _recovery is None:
+        require(set(before) == {r["path"] for r in inv} | {"artifact_inventory.json", "COMPLETED.json"}, "Inventory file set")
     for item in inv:
         path = (run / item["path"]).resolve()
         require(path.is_relative_to(run.resolve()), "Unsafe inventory path")
@@ -150,6 +162,11 @@ def validate_run(root, run, k, seed, approved_heads):
     table = pd.read_csv(run / "test_archetype_class_distribution_raw.csv")
     require(len(table)==k*7 and set(zip(table.raw_archetype,table.dx)) == {(i,c) for i in range(1,k+1) for c in EXPECTED_CLASSES}, "Class table keys")
     dist = coefficient_weighted_class_distribution(arrays["test"][0], mappings["test"].dx)
+    if "status" in table.columns:
+        pd.testing.assert_frame_equal(table, pd.DataFrame(semantic_class_rows(arrays["test"][0], mappings["test"].dx)), check_dtype=False, rtol=1e-6, atol=1e-12)
+        require(read(run/"test_semantic_status.json") == semantic_distribution_details(arrays["test"][0], mappings["test"].dx), "Semantic status mismatch")
+    else:
+        require(np.isfinite(dist).all(), "Legacy table cannot represent undefined semantics")
     for row in table.itertuples():
         prob = dist[row.raw_archetype-1, EXPECTED_CLASSES.index(row.dx)]
         prevalence = float((mappings["test"].dx == row.dx).mean())
@@ -157,10 +174,15 @@ def validate_run(root, run, k, seed, approved_heads):
     if (run / "progress.jsonl").exists():
         events = [json.loads(line) for line in (run / "progress.jsonl").read_text().splitlines()]
         require([e["epoch"] for e in events if e["event"] == "epoch_end"] == list(range(1,51)), "Progress epoch sequence")
+    degeneration = {part: degeneration_details(arrays[part][0]) for part in arrays}
+    if (run/"degeneration.json").exists():
+        require(read(run/"degeneration.json") == degeneration, "Degeneration record mismatch")
     require(hashes(run) == before, "Run modified during validation")
     return dict(verdict="PASS_WITH_LIMITATIONS", K=k, seed=seed, run=str(run), execution_revision=revision,
                 hashes=before, metrics=metrics, decoded_reload_max_difference=float(np.max(np.abs(fresh.numpy()-decoded))),
-                warnings=read(run/"warnings.json"), limitation="Artifact/reload consistency, not trajectory replay or clinical validity")
+                warnings=read(run/"warnings.json"), degeneration=degeneration,
+                export_status="RECOVERED_EXPORT" if _recovery is not None else "COMPLETED",
+                limitation="Artifact/reload consistency, not trajectory replay or clinical validity")
 
 
 def verify_pair(root, pair, reference, candidate, k, seed):
@@ -171,7 +193,8 @@ def verify_pair(root, pair, reference, candidate, k, seed):
     from .model_adapter import load_baseline_module
     from .stability_metrics import (coefficient_stability, paired_lesion_coefficients,
         lesion_bootstrap_coefficient_stability, semantic_stability, nearest_real_top_n,
-        compare_nearest_real, visual_stability)
+        compare_nearest_real, visual_stability, semantic_summary, semantic_comparison_rows,
+        degeneration_details)
     before = hashes(pair)
     input_hashes = {"reference":hashes(reference), "candidate":hashes(candidate)}
     p = read(pair/"alignment/permutation.json")
@@ -207,6 +230,12 @@ def verify_pair(root, pair, reference, candidate, k, seed):
     expected = dict(K=k, reference_seed=113,candidate_seed=seed, matching_partition="validation",evaluation_partition="test",
         permutation=permutation.tolist(),coefficient={key:value for key,value in coefficient.items() if key not in {"coefficient_vector_l1_by_lesion","dominant_agreement_by_lesion","lesion_mapping"}},
         lesion_bootstrap=boot,semantic={"mean_jensen_shannon_divergence_base2":semantic["mean_jensen_shannon_divergence_base2"]},nearest_real=nearest,visual=visual)
+    saved_summary = read(pair/"test/stability_summary.json")
+    if "mean_scope" in saved_summary["semantic"]:
+        expected["semantic"] = semantic_summary(semantic)
+        expected["degeneration"] = dict(reference=degeneration_details(ref),candidate=degeneration_details(values["test"][1]))
+    else:
+        require(semantic["undefined_pairs"] == 0, "Legacy summary cannot hide undefined semantics")
     def compare(a,b):
         if isinstance(b,dict):
             require(set(a)==set(b),"Summary keys")
@@ -217,7 +246,7 @@ def verify_pair(root, pair, reference, candidate, k, seed):
         elif b is None or isinstance(b,(str,bool)):
             require(a==b,"Undefined/string/bool mismatch")
         else: np.testing.assert_allclose(a,b,rtol=1e-6,atol=1e-8)
-    compare(read(pair/"test/stability_summary.json"),expected)
+    compare(saved_summary,expected)
     lesion_rows = lm.copy()
     lesion_rows["coefficient_vector_l1"] = coefficient["coefficient_vector_l1_by_lesion"]
     lesion_rows["dominant_archetype_agreement"] = coefficient["dominant_agreement_by_lesion"]
@@ -225,6 +254,8 @@ def verify_pair(root, pair, reference, candidate, k, seed):
         pd.testing.assert_frame_equal(pd.read_csv(pair/"test"/name),frame,check_dtype=False,rtol=1e-6,atol=1e-8)
     from .constants import EXPECTED_CLASSES
     semantic_rows = [dict(matched_archetype=i+1,dx=c,reference_probability=semantic["reference_distribution"][i,j],candidate_probability=semantic["candidate_distribution"][i,j],jensen_shannon_divergence_base2=semantic["jensen_shannon_divergence_base2"][i]) for i in range(k) for j,c in enumerate(EXPECTED_CLASSES)]
+    if "mean_scope" in saved_summary["semantic"]:
+        semantic_rows = semantic_comparison_rows(semantic)
     pd.testing.assert_frame_equal(pd.read_csv(pair/"test/semantic_stability.csv"),pd.DataFrame(semantic_rows),rtol=1e-6,atol=1e-8)
     legacy = pair/"presentation/derived_sha256.json"
     if legacy.exists():
@@ -232,6 +263,9 @@ def verify_pair(root, pair, reference, candidate, k, seed):
             path = (pair/name).resolve()
             require(path.is_relative_to(pair.resolve()) and sha(path)==digest,"Legacy derivative hash")
     require(hashes(pair)==before and hashes(reference)==input_hashes["reference"] and hashes(candidate)==input_hashes["candidate"],"Evidence changed")
+    # Enrich the new verification receipt without rewriting legacy derived files.
+    expected["semantic"] = semantic_summary(semantic)
+    expected["degeneration"] = dict(reference=degeneration_details(ref),candidate=degeneration_details(values["test"][1]))
     return dict(verdict="PASS", K=k, seed=seed, pair=str(pair), inputs=input_hashes, hashes=before, summary=expected)
 
 
@@ -309,13 +343,15 @@ def aggregate(destination, run_reports, pair_reports):
         for name in ["coefficient_vector_l1_mean","dominant_archetype_agreement"]:
             ci=s["lesion_bootstrap"]["metrics"][name]
             add(name,s["coefficient"][name],unit="748 lesion means",lesion_bootstrap_lower=ci["lower"],lesion_bootstrap_upper=ci["upper"])
-        add("mean_semantic_js_base2",s["semantic"]["mean_jensen_shannon_divergence_base2"],unit="image-coefficient-weighted distributions")
+        add("mean_semantic_js_base2",s["semantic"]["mean_jensen_shannon_divergence_base2"],unit="defined pairs only",
+            defined_archetype_pairs=s["semantic"].get("defined_pairs",k),total_archetype_pairs=k)
         semantic = read_csv_rows(Path(report["pair"])/"test/semantic_stability.csv")
         for i in range(k):
             c=s["coefficient"]["per_archetype"][i]
             add("lesion_pearson",c["pearson_correlation"],i+1,"748 lesion means",correlation_defined=c["correlation_defined"])
             add("lesion_mae",c["mae"],i+1,"748 lesion means")
-            add("semantic_js_base2",float(next(r for r in semantic if int(r["matched_archetype"])==i+1)["jensen_shannon_divergence_base2"]),i+1,"1002 image coefficient weights")
+            js = next(r for r in semantic if int(r["matched_archetype"])==i+1)["jensen_shannon_divergence_base2"]
+            add("semantic_js_base2",float(js) if js.strip() else None,i+1,"1002 image coefficient weights")
             for key in ["image_id_jaccard","diagnosis_jensen_shannon_divergence_base2"]: add(key,s["nearest_real"][i][key],i+1,"top10 test images")
             for key in ["rgb_ssim","pixel_mse"]: add(key,s["visual"][i][key],i+1,"decoded RGB128 image")
     stats=[]
@@ -327,7 +363,7 @@ def aggregate(destination, run_reports, pair_reports):
             st={n:st[n] for n in ["mean","sample_standard_deviation","minimum","maximum"]}
         else:
             st=dict(mean=float(np.mean(vals)) if vals else None,sample_standard_deviation=float(np.std(vals,ddof=1)) if len(vals)>1 else None,minimum=min(vals) if vals else None,maximum=max(vals) if vals else None)
-        stats.append(dict(K=key[0],archetype=key[1],metric=key[2],expected_pairs=4,observed_pairs=len(rows),defined_values=len(vals),undefined_values=len(rows)-len(vals),scope="descriptive observed values; no seed CI",**st))
+        stats.append(dict(K=key[0],archetype=key[1],metric=key[2],expected_pairs=4,observed_pairs=len(rows),defined_values=len(vals),undefined_values=len(rows)-len(vals),scope="defined values only; actual denominator=defined_values; no seed CI",**st))
     run_keys=[(r["K"],r["seed"]) for r in run_reports]
     pair_keys=[(r["K"],r["seed"]) for r in pair_reports]
     require(len(set(run_keys))==len(run_keys) and len(set(pair_keys))==len(pair_keys),"Duplicate summary inputs")
@@ -335,9 +371,15 @@ def aggregate(destination, run_reports, pair_reports):
     expected_pairs={(k,s) for k,s in expected_runs if s!=113}
     require(set(run_keys)<=expected_runs and set(pair_keys)<=expected_pairs,"Out-of-protocol summary input")
     complete=set(run_keys)==expected_runs and set(pair_keys)==expected_pairs
-    result=dict(status="COMPLETE" if complete else "INCOMPLETE",verified_runs=[dict(K=r["K"],seed=r["seed"],run=r["run"],execution_revision=r["execution_revision"],hashes=r["hashes"]) for r in run_reports],
+    result=dict(status="COMPLETE" if complete else "INCOMPLETE",verified_runs=[dict(K=r["K"],seed=r["seed"],run=r["run"],execution_revision=r["execution_revision"],hashes=r["hashes"],degeneration=r.get("degeneration"),export_status=r.get("export_status","COMPLETED")) for r in run_reports],
                 verified_pairs=pair_reports, raw_metrics=raw, descriptive_statistics=stats,
                 note="K5 and K7 separate; shared-reference variation is not independent experimental uncertainty. Lesion bootstrap only L1/agreement, 1000 draws seed2026. No stability threshold or clinical claim.")
+    result["registered_matrix"] = [dict(K=k,seed=seed,validated=(k,seed) in run_lookup,
+        degeneration=run_lookup.get((k,seed),{}).get("degeneration")) for k,seed in sorted(expected_runs)]
+    result["degeneration_counts"] = {str(k): dict(verified_runs=sum(r["K"]==k for r in run_reports),
+        runs_with_degenerate_test_columns=sum(r["K"]==k and r.get("degeneration",{}).get("test",{}).get("degenerate_count",0)>0 for r in run_reports),
+        zero_mass_test_archetypes=sum(r.get("degeneration",{}).get("test",{}).get("zero_mass_count",0) for r in run_reports if r["K"]==k),
+        undefined_semantic_matches=sum(p["summary"]["semantic"].get("undefined_pairs",0) for p in pair_reports if p["K"]==k)) for k in (5,7)}
     write_new(destination/"summary.json",result)
     csv_rows(destination/"raw_metrics.csv",raw)
     csv_rows(destination/"descriptive_statistics.csv",stats)
@@ -360,4 +402,4 @@ def csv_rows(path, rows):
     fields=list(dict.fromkeys(key for row in rows for key in row)) or ["status"]
     with Path(path).open("x",newline="",encoding="utf-8") as f:
         writer=csv.DictWriter(f,fieldnames=fields);writer.writeheader()
-        writer.writerows({key:("undefined" if value is None else value) for key,value in row.items()} for row in rows)
+        writer.writerows({key:("" if value is None else value) for key,value in row.items()} for row in rows)

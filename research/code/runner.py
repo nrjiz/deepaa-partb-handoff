@@ -41,7 +41,8 @@ from .output_contract import (
     reserve_run_directory,
     write_json,
 )
-from .stability_metrics import coefficient_weighted_class_distribution, nearest_real_top_n
+from .stability_metrics import (nearest_real_top_n, semantic_class_rows,
+                                semantic_distribution_details, degeneration_details)
 from .progress import Progress, write_incremental_history
 
 
@@ -170,35 +171,12 @@ def _save_raw_interpretability(run_dir: Path, model, test_frame: pd.DataFrame, t
     pd.DataFrame([row for archetype_rows in nearest for row in archetype_rows]).to_csv(
         run_dir / "test_nearest_real_top10_raw.csv", index=False, lineterminator="\n"
     )
-    distributions = coefficient_weighted_class_distribution(
-        test_values["coefficients"], test_frame["dx"], EXPECTED_CLASSES
-    )
-    test_prevalence = (
-        test_frame["dx"].value_counts().reindex(EXPECTED_CLASSES, fill_value=0).to_numpy(dtype=float)
-        / len(test_frame)
-    )
-    distribution_rows = []
-    for archetype_index in range(distributions.shape[0]):
-        for class_index, diagnosis in enumerate(EXPECTED_CLASSES):
-            distribution_rows.append(
-                {
-                    "raw_archetype": archetype_index + 1,
-                    "dx": diagnosis,
-                    "coefficient_weighted_probability": float(distributions[archetype_index, class_index]),
-                    "test_dx_prevalence": float(test_prevalence[class_index]),
-                    "enrichment_ratio": (
-                        None
-                        if test_prevalence[class_index] == 0
-                        else float(
-                            distributions[archetype_index, class_index]
-                            / test_prevalence[class_index]
-                        )
-                    ),
-                }
-            )
+    distribution_rows = semantic_class_rows(test_values["coefficients"], test_frame["dx"])
     pd.DataFrame(distribution_rows).to_csv(
         run_dir / "test_archetype_class_distribution_raw.csv", index=False, lineterminator="\n"
     )
+    write_json(run_dir / "test_semantic_status.json",
+               semantic_distribution_details(test_values["coefficients"], test_frame["dx"]))
 
 
 def _checkpoint_reload_check(repository: Path, checkpoint: Path, k: int, trained_model) -> dict:
@@ -382,6 +360,9 @@ def execute_run(spec: RunSpec) -> Path:
         _save_partition_outputs(run_dir, "validation", active_frames["validation"], outputs["validation"])
         _save_partition_outputs(run_dir, "test", active_frames["test"], outputs["test"])
         _save_raw_interpretability(run_dir, model, active_frames["test"], outputs["test"])
+        write_json(run_dir / "degeneration.json", {
+            part: degeneration_details(outputs[part]["coefficients"])
+            for part in ["validation", "test"]})
 
         warnings = determinism.warnings
         write_json(run_dir / "warnings.json", warnings)
@@ -419,6 +400,8 @@ def execute_run(spec: RunSpec) -> Path:
             run_dir,
             {
                 "status": "COMPLETED",
+                "degeneration_detected": any(degeneration_details(outputs[part]["coefficients"])["degenerate_count"] > 0
+                                             for part in ["validation", "test"]),
                 "scientific_evidence": False if spec.smoke_test else None,
                 "completed_utc": completed.isoformat(),
                 "baseline_source_sha256_before": before_source_hash,

@@ -24,6 +24,9 @@ from research.code.stability_metrics import (
     paired_lesion_coefficients,
     compare_nearest_real,
     semantic_stability,
+    semantic_summary,
+    semantic_comparison_rows,
+    degeneration_details,
     visual_stability,
 )
 
@@ -59,8 +62,8 @@ def main() -> None:
     output_dir = args.output_dir.resolve()
     require_analysis_output(output_dir)
     for run_dir in (reference_run, candidate_run):
-        if not (run_dir / "COMPLETED.json").is_file():
-            raise ValueError(f"Run lacks COMPLETED.json: {run_dir}")
+        from research.code.recovery import require_analysis_run
+        require_analysis_run(REPOSITORY, run_dir)
         run_config = json.loads((run_dir / "configuration.json").read_text(encoding="utf-8"))
         if run_config.get("status") != "PRIMARY RUN":
             raise ValueError(f"Evaluation accepts completed primary runs only: {run_dir}")
@@ -139,18 +142,7 @@ def main() -> None:
     pd.DataFrame(visual).to_csv(
         output_dir / "visual_stability.csv", index=False, lineterminator="\n"
     )
-    semantic_rows = []
-    for archetype in range(k):
-        for class_index, diagnosis in enumerate(EXPECTED_CLASSES):
-            semantic_rows.append(
-                {
-                    "matched_archetype": archetype + 1,
-                    "dx": diagnosis,
-                    "reference_probability": semantic["reference_distribution"][archetype, class_index],
-                    "candidate_probability": semantic["candidate_distribution"][archetype, class_index],
-                    "jensen_shannon_divergence_base2": semantic["jensen_shannon_divergence_base2"][archetype],
-                }
-            )
+    semantic_rows = semantic_comparison_rows(semantic)
     pd.DataFrame(semantic_rows).to_csv(
         output_dir / "semantic_stability.csv", index=False, lineterminator="\n"
     )
@@ -165,15 +157,15 @@ def main() -> None:
             key: value for key, value in coefficient.items()
             if key not in {"coefficient_vector_l1_by_lesion", "dominant_agreement_by_lesion", "lesion_mapping"}
         },
-        "semantic": {
-            "mean_jensen_shannon_divergence_base2": semantic["mean_jensen_shannon_divergence_base2"]
-        },
+        "semantic": semantic_summary(semantic),
+        "degeneration": {"reference": degeneration_details(reference_coefficients),
+                         "candidate": degeneration_details(candidate_raw)},
         "nearest_real": nearest,
         "visual": visual,
         "lesion_bootstrap": bootstrap,
     }
     (output_dir / "stability_summary.json").write_text(
-        json.dumps(json_ready(summary), indent=2, sort_keys=True) + "\n",
+        json.dumps(json_ready(summary), indent=2, sort_keys=True, allow_nan=False) + "\n",
         encoding="utf-8",
         newline="\n",
     )

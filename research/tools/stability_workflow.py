@@ -39,7 +39,7 @@ def main():
     if args.action=="preflight":
         resource=w.guard(check_data=True)
         require(not (w.state/"workflow.lock.json").exists(),"Workflow lock exists; inspect status")
-        for k,seed in MATRIX:require(classify(w.run_path(k,seed)) in {"MISSING","COMPLETED_UNVERIFIED"},"Partial/active run blocks queue")
+        for k,seed in MATRIX:require(classify(w.run_path(k,seed)) in {"MISSING","COMPLETED_UNVERIFIED","RECOVERED_UNVERIFIED"},"Partial/active run blocks queue")
         for k,seed in MATRIX:
             if seed==113:continue
             pair=w.pair_path(k,seed)

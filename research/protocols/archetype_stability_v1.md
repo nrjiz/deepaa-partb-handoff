@@ -75,3 +75,9 @@ No primary stability run has been executed. The completed smoke test validates p
 - Matching on test data or using fixed-vertex Euclidean distance for semantic alignment.
 - Changing the baseline architecture, objective, preprocessing, or frozen training configuration.
 - Treating smoke outputs as results or silently replacing the reference rule with consensus matching.
+
+## Prospective clarification D-019 (2026-09-15)
+
+Explicit BRAIN decision relayed/authorized by the senior developer after seed401's export failure: retain this degenerate seed without retraining or exclusion. Zero-mass semantics are undefined (JSON null, blank numeric CSV, status/reason and measured mass); positive tiny masses retain the original formula. JS is undefined if either matched distribution is undefined. Report defined/K counts and label any available-value mean "defined pairs only" with its denominator; none defined means null. Across-run summaries retain every registered run, degeneration/undefined counts and actual numeric denominators (sample SD requires two). D-016 matching, null correlations, all other defined metrics and the frozen lesion/bootstrap scope remain unchanged. Decoded-image distinctness is not evidence of useful usage.
+
+A fully verified, checkpoint-only separate recovered-export receipt may represent seed401 in the matrix. Original failure/artifacts/logs remain immutable, never relabeled as ordinary completion. Exact original/recovery provenance and code hashes are required. This dated addition records post-observation authorization, not retroactive preregistration; see D-019 for its complete authority and constraints.

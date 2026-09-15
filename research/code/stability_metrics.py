@@ -132,17 +132,60 @@ def coefficient_weighted_class_distribution(
     labels: Sequence[str],
     classes: Sequence[str] = EXPECTED_CLASSES,
 ) -> np.ndarray:
+    """D-019: undefined rows are NaN internally; serialize via semantic helpers.
+
+    Positive mass uses the original float64 reduction without epsilon/threshold.
+    """
     coefficients = _matrix(coefficients, "coefficients")
     labels = np.asarray(labels, dtype=str)
     if len(coefficients) != len(labels):
         raise StabilityInputError("Coefficient and label rows differ")
+    if np.any(coefficients < 0) or not set(labels).issubset(classes):
+        raise StabilityInputError("Negative coefficients or unknown diagnosis")
     distributions = np.zeros((coefficients.shape[1], len(classes)), dtype=np.float64)
     for class_index, diagnosis in enumerate(classes):
         distributions[:, class_index] = coefficients[labels == diagnosis].sum(axis=0)
     totals = distributions.sum(axis=1, keepdims=True)
-    if np.any(totals <= 0):
-        raise StabilityInputError("An archetype has no coefficient mass")
-    return distributions / totals
+    result = np.full_like(distributions, np.nan)
+    np.divide(distributions, totals, out=result, where=totals > 0)
+    return result
+
+
+def semantic_distribution_details(coefficients, labels, classes=EXPECTED_CLASSES):
+    distribution = coefficient_weighted_class_distribution(coefficients, labels, classes)
+    masses = np.asarray(coefficients, dtype=np.float64).sum(axis=0)
+    return [dict(raw_archetype=i+1, coefficient_mass=float(mass),
+                 status="defined" if mass > 0 else "undefined",
+                 reason=None if mass > 0 else "zero_coefficient_mass",
+                 probabilities=distribution[i].tolist() if mass > 0 else None)
+            for i, mass in enumerate(masses)]
+
+
+def semantic_class_rows(coefficients, labels, classes=EXPECTED_CLASSES):
+    details = semantic_distribution_details(coefficients, labels, classes)
+    labels = np.asarray(labels)
+    rows = []
+    for item in details:
+        for j, diagnosis in enumerate(classes):
+            prevalence = float(np.mean(labels == diagnosis))
+            prob = item["probabilities"][j] if item["probabilities"] is not None else None
+            rows.append(dict(raw_archetype=item["raw_archetype"], dx=diagnosis,
+                coefficient_weighted_probability=prob, test_dx_prevalence=prevalence,
+                enrichment_ratio=prob/prevalence if prob is not None and prevalence > 0 else None,
+                coefficient_mass=item["coefficient_mass"], status=item["status"], reason=item["reason"]))
+    return rows
+
+
+def degeneration_details(coefficients):
+    from .alignment import validate_coefficients
+    values = validate_coefficients("degeneration audit", coefficients)
+    std = values.std(axis=0, ddof=0)
+    masses = values.sum(axis=0)
+    return dict(population_std=std.tolist(), coefficient_mass=masses.tolist(),
+                degenerate_columns=(std <= DEGENERATE_STD_THRESHOLD).tolist(),
+                degenerate_count=int(np.sum(std <= DEGENERATE_STD_THRESHOLD)),
+                zero_mass_count=int(np.sum(masses == 0)),
+                note="D-016 threshold; distinct decoded images do not establish useful usage")
 
 
 def jensen_shannon_divergence_base2(left: np.ndarray, right: np.ndarray) -> float:
@@ -180,17 +223,43 @@ def semantic_stability(
     )
     if ref_distribution.shape != cand_distribution.shape:
         raise StabilityInputError("Semantic distribution shapes differ")
-    divergences = [
-        jensen_shannon_divergence_base2(ref_distribution[i], cand_distribution[i])
-        for i in range(ref_distribution.shape[0])
-    ]
+    defined = np.isfinite(ref_distribution).all(axis=1) & np.isfinite(cand_distribution).all(axis=1)
+    divergences = [jensen_shannon_divergence_base2(ref_distribution[i], cand_distribution[i])
+                   if defined[i] else None for i in range(len(defined))]
+    valid = [x for x in divergences if x is not None]
     return {
         "classes": list(classes),
         "reference_distribution": ref_distribution,
         "candidate_distribution": cand_distribution,
-        "jensen_shannon_divergence_base2": np.asarray(divergences),
-        "mean_jensen_shannon_divergence_base2": float(np.mean(divergences)),
+        "jensen_shannon_divergence_base2": divergences,
+        "mean_jensen_shannon_divergence_base2": float(np.mean(valid)) if valid else None,
+        "mean_scope": "defined pairs only",
+        "defined_pairs": len(valid), "total_pairs": len(defined),
+        "undefined_pairs": len(defined)-len(valid),
+        "reference_details": semantic_distribution_details(reference_coefficients, reference_labels, classes),
+        "candidate_details": semantic_distribution_details(aligned_candidate_coefficients, candidate_labels, classes),
     }
+
+
+def semantic_summary(semantic):
+    return {key: semantic[key] for key in ["mean_jensen_shannon_divergence_base2",
+            "mean_scope", "defined_pairs", "total_pairs", "undefined_pairs"]}
+
+
+def semantic_comparison_rows(semantic):
+    rows = []
+    for i, divergence in enumerate(semantic["jensen_shannon_divergence_base2"]):
+        ref, cand = semantic["reference_details"][i], semantic["candidate_details"][i]
+        for j, diagnosis in enumerate(semantic["classes"]):
+            rows.append(dict(matched_archetype=i+1, dx=diagnosis,
+                reference_probability=ref["probabilities"][j] if ref["probabilities"] is not None else None,
+                candidate_probability=cand["probabilities"][j] if cand["probabilities"] is not None else None,
+                jensen_shannon_divergence_base2=divergence,
+                reference_coefficient_mass=ref["coefficient_mass"], candidate_coefficient_mass=cand["coefficient_mass"],
+                reference_status=ref["status"], candidate_status=cand["status"],
+                status="defined" if divergence is not None else "undefined",
+                reason=None if divergence is not None else "zero_mass_on_either_side"))
+    return rows
 
 
 def nearest_real_top_n(

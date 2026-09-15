@@ -137,3 +137,14 @@ Allowed statuses: **PROPOSED**, **ACCEPTED**, **REJECTED**, **SUPERSEDED**.
 - Status: ACCEPTED
 - Decision: Within each K, retain all four seed-113-versus-candidate values and summarize them using arithmetic mean, sample standard deviation, minimum, and maximum. Do not infer a confidence interval from four training seeds.
 - Lesion uncertainty: For lesion-level coefficient-vector L1 distance and dominant-archetype agreement, use 1,000 paired lesion bootstrap resamples with replacement, seed 2026, and a two-sided percentile 95% interval.
+
+## D-019 — Degenerate semantics and separate export recovery
+
+- Date: 2026-09-15.
+- Status: ACCEPTED.
+- Authority: Today's explicit senior-developer message transmitting BRAIN's six decisions and authorizing implementation/recovery. This is a prospective clarification after observing seed401, not an invented preregistered rule.
+- Retain K5/seed401 in the frozen matrix without retraining, substitution, exclusion or tuning. Preserve D-016 and undefined correlations exactly; retain other mathematically defined metrics and flag degeneration. Distinct decoded images alone do not establish useful archetype usage.
+- A semantic distribution with exactly zero measured coefficient mass is undefined: JSON null/blank numeric CSV cells, explicit status/reason and mass. No epsilon, uniform prior, zeros-as-probabilities, or tiny-mass threshold. Strictly positive mass uses the unchanged formula.
+- Matched semantic JS is undefined if either distribution is undefined. Report valid count out of K. Arithmetic mean over defined matches is labeled "defined pairs only" with its denominator; no defined matches means null. Never present this as a complete-K mean.
+- Across-run summaries retain all registered runs, flag degeneration/undefined counts, and show actual defined denominators for mean/sample-SD/min/max. Sample SD remains undefined with fewer than two values. This explicitly supplements D-018's missing undefined-value case, without changing lesion aggregation or bootstrap scope.
+- Accept seed401's separate recovered-export receipt only after complete artifact verification and checkpoint-only inference equivalence, with zero optimizer steps. Preserve original FAILED.json, all artifacts/logs and execution revision. Record recovery HEAD, any uncommitted code status and exact code hashes; never forge ordinary completion. Workflow registration must bind the receipt, original/checkpoint and recovery evidence. Other partial/corrupt runs remain blocked.
