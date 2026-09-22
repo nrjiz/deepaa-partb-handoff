@@ -11,6 +11,7 @@ import os
 from pathlib import Path, PurePosixPath
 import shutil
 import subprocess
+import sys
 import zipfile
 from datetime import datetime, timezone
 
@@ -232,30 +233,88 @@ def extract_verified(archive, expected_sha, destination):
     return m
 
 
-def restore(payload, workspace):
-    """Linux-only exact byte checkout; no scientific source/hash substitution."""
-    require(os.name == 'posix', 'Restore is Linux-only')
+def run_visible(command, *, cwd=None, env=None, log=None):
+    """Stream merged subprocess output to the notebook and an optional new log."""
+    import contextlib
+    print('Running: ' + ' '.join(map(str, command)), flush=True)
+    with (Path(log).open('x', encoding='utf-8') if log else contextlib.nullcontext()) as handle:
+        with subprocess.Popen(command, cwd=cwd, env=env, stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace') as child:
+            for line in child.stdout:
+                print(line, end='', flush=True)
+                if handle:
+                    handle.write(line); handle.flush()
+            code = child.wait()
+    if code:
+        raise subprocess.CalledProcessError(code, command, output=f'Full output: {log}' if log else None)
+
+
+def verify_index(root, head):
+    """Compare every index mode/blob/stage/path with the reviewed commit, read-only."""
+    require(git(root, 'rev-parse', 'HEAD') == head, 'Restored HEAD differs')
+    index = subprocess.check_output(['git', '--no-optional-locks', 'ls-files', '--stage', '-z'], cwd=root)
+    tree = subprocess.check_output(['git', '--no-optional-locks', 'ls-tree', '-r', '-z', head], cwd=root)
+    expected = {}
+    for entry in tree.split(b'\0'):
+        if entry:
+            meta, path = entry.split(b'\t', 1)
+            mode, kind, digest = meta.split()
+            expected[path] = (mode, digest, b'0')
+    actual = {}
+    for entry in index.split(b'\0'):
+        if entry:
+            meta, path = entry.split(b'\t', 1)
+            require(path not in actual, 'Unmerged index')
+            actual[path] = tuple(meta.split())
+    require(actual == expected, 'Index entries differ from reviewed commit')
+    return hashlib.sha256(index).hexdigest()
+
+
+def checkout_source(payload, workspace):
+    """Disposable checkout, also testable on Windows; original repositories are untouched."""
     m = read(payload/'PACKAGE.json')
     require(m['release'] and not m['source_status'], 'Draft package cannot execute')
     actual=inventory(payload); actual.pop('PACKAGE.json')
     require(actual==m['files'], 'Package content changed')
     workspace.mkdir(parents=True,exist_ok=False)
     root = workspace/'repo'
+    print('Restore: payload verified; checking out reviewed bundle.', flush=True)
     subprocess.run(['git','clone','--no-checkout',str(payload/'history.bundle'),str(root)],check=True)
-    subprocess.run(['git','config','core.autocrlf','true'],cwd=root,check=True)
-    subprocess.run(['git','config','core.eol','crlf'],cwd=root,check=True)
+    subprocess.run(['git','config','core.autocrlf','input'],cwd=root,check=True)
+    subprocess.run(['git','config','core.eol','lf'],cwd=root,check=True)
+    # The reviewed snapshot is LF except for the protected CRLF baseline. Match
+    # checkout sizes to that snapshot; blanket CRLF leaves false-dirty stat entries
+    # after an LF overlay, even though Git's normalized content diff is empty.
+    with (root/'.git/info/attributes').open('x', encoding='utf-8') as handle:
+        handle.write(f'{BASELINE_SOURCE} text eol=crlf\n')
     subprocess.run(['git','checkout','-b','colab-reviewed',m['head']],cwd=root,check=True)
     subprocess.run(['git','remote','remove','origin'],cwd=root,check=True)
+    index_before = verify_index(root, m['head'])
     for p in (payload/'source_bytes').rglob('*'):
         if p.is_file():
-            # These are exact reviewed working-tree bytes, Git-clean under CRLF conversion.
+            # Exact reviewed working-tree bytes, never normalization of the payload.
             dest=root/p.relative_to(payload/'source_bytes')
             dest.parent.mkdir(parents=True,exist_ok=True)
             dest.write_bytes(p.read_bytes())
+    require(verify_index(root, m['head']) == index_before, 'Overlay changed index entries')
     require(not git(root,'status','--porcelain=v1','--untracked-files=all'), 'Restored source not Git-clean')
+    for name, entry in m['files'].items():
+        if name.startswith('source_bytes/'):
+            dest = root/name.removeprefix('source_bytes/')
+            require(dest.stat().st_size == entry['bytes'] and sha(dest) == entry['sha256'], 'Restored source snapshot differs')
     require(sha(root/BASELINE_SOURCE)==BASELINE_SOURCE_SHA256,'Protected CRLF source hash')
     for n,h in MANIFEST_SHA256.items():
         require(sha(root/'research/splits/journal_v1'/n)==h,'Manifest bytes')
+    print('Restore: clean index/HEAD and all exact source/manifest hashes verified.', flush=True)
+    return root
+
+
+def restore(payload, workspace):
+    """Linux-only exact byte restoration; no scientific source/hash substitution."""
+    require(sys.platform.startswith('linux'), 'Restore is Linux-only')
+    root = checkout_source(payload, workspace)
+    m = read(payload/'PACKAGE.json')
+    print('Restore: copying historical evidence and resolving exact path aliases.', flush=True)
     for p in (payload/'evidence').rglob('*'):
         if p.is_file():
             rel=p.relative_to(payload/'evidence')
@@ -275,6 +334,28 @@ def restore(payload, workspace):
             alias.symlink_to(target,target_is_directory=target.is_dir())
         else:
             require(alias.resolve()==target,'Conflicting relocation')
+    # Run unchanged D-019 registration/receipt checks in the historical alias CWD,
+    # using restored code in a fresh interpreter, before environment installation.
+    code = '''
+import sys
+from pathlib import Path
+root=Path(sys.argv[1]); sys.path.insert(0,str(root))
+from research.code.recovery import registered_path
+from research.code.workflow_evidence import read, sha, require
+state=root.parent/'external/stability_workflow_local'
+actual=registered_path(root,state,5,401,root/'research/runs/stability_v1/K5/seed_401')
+require(actual==(state/'recovered_exports/K5_seed401_20260915').resolve(),'D-019 registration missing')
+entry=read(state/'recoveries/K5_seed401.json')
+require(sha(Path(entry['archive']))==entry['archive_sha256'],'D-019 archive changed')
+print('D-019 registration, receipt, original/external evidence and archive verified; no model loaded.')
+'''
+    run_visible([sys.executable, '-B', '-u', '-c', code, str(root)], cwd=aliases,
+                env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1'), log=workspace/'restore_d019.log')
+    verify_index(root, m['head'])
+    require(not git(root,'status','--porcelain=v1','--untracked-files=all'), 'Restored evidence dirtied source')
     write_new(workspace/'RESTORE.json',dict(head=m['head'],package_sha256=sha(payload/'PACKAGE.json'),
-               relocation_sha256=sha(payload/'RELOCATION.json'),byte_policy='exact source snapshot; core.autocrlf=true'))
+               relocation_sha256=sha(payload/'RELOCATION.json'),
+               index_entries_sha256=verify_index(root, m['head']), d019_registration_receipt='VERIFIED',
+               byte_policy='exact source snapshot; LF checkout with protected baseline eol=crlf'))
+    print('Restore complete. GPU readiness and primary launch remain pending.', flush=True)
     return root

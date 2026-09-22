@@ -54,10 +54,33 @@ status. A release build requires an exact explicitly supplied clean HEAD; it
 does not modify the Windows approved pin. The new package HEAD is the Colab
 execution approval; the old Windows pin is retained as historical evidence.
 
-Restore uses an isolated clone of the bundle, CRLF Git checkout conversion and
-exact packaged working-tree bytes. It verifies Git cleanliness, all source-byte
+Restore uses an isolated clone of the bundle, LF checkout (`core.autocrlf=input`,
+`core.eol=lf`) with a disposable `.git/info/attributes` rule giving only the
+protected baseline `text eol=crlf`, and exact packaged working-tree bytes.
+It verifies Git cleanliness, every index mode/blob/stage/path against the reviewed
+commit before and after overlay, all source-byte
 hashes and the existing literal protected-source/manifests hashes. No accepted
 hash is substituted. D-019-bound files remain unchanged.
+
+Restore fix (2026-09-22): the actual d6adf95 release reproduces the reported
+false-dirty checkout on Git for Windows 2.46.0. Blanket `core.autocrlf=true`
+checks out CRLF, then the snapshot restores LF in docs/research files. Their
+normalized blob IDs match HEAD, but cached checkout sizes differ. The content
+diff is empty while status reports modifications; `update-index --refresh`
+still reports `needs update`. Matching the initial checkout line endings to the
+snapshot fixes the failure without staging content, resetting files, changing
+index entries, ignoring paths or rewriting packaged evidence. The protected
+baseline remains byte-for-byte CRLF. The exact snapshot and clean-status gates
+still reject any incompatible future package.
+
+The regression extracts the actual release ZIP, checks the receipt and full
+inventory, reproduces the old failure, tests the corrected checkout and all
+source hashes, and verifies that a real edit remains blocked. It runs full
+restoration including historical aliases and unchanged D-019 registration,
+receipt and archive verification when Linux is available. Set
+`DEEPAA_TEST_RELEASE` to a release directory containing its ZIP and receipt to
+test another release. On Windows only checkout/overlay verification executes;
+this is not a Linux or GPU success claim.
 
 `RELOCATION.json` separately binds old paths to packaged files. On Linux, aliases
 for exact historical path strings live in an external worker working directory,
@@ -68,6 +91,49 @@ path, numerical or environment failure blocks training, rather than weakening
 verification. The alias scheme is Linux-specific and needs target confirmation.
 
 ## Environment and readiness
+
+Setup now reports restore phases and dataset-copy progress. Installation and
+test subprocess output streams into the notebook. Readiness keeps visible
+progress/errors in `readiness_stdout.txt` and parses only the separate
+`readiness_result.json`. Worker start/exit messages identify each log; failures
+also print its last 12 KB. Nonzero exits stop the cell. `restore_d019.log` and
+`RESTORE.json` must confirm the real registration/receipt/archive gate before
+installing the target environment. This early gate uses no TensorFlow/model.
+
+Local verification on 2026-09-22 had no Linux runtime (WSL not installed; Docker
+unavailable). If the failed Colab runtime is still present, this optional single
+read-only cell captures the remaining Linux-specific index/attribute evidence;
+it does not repeat the supplied status/diff diagnostics or modify the index:
+
+```python
+import sys, os
+sys.dont_write_bytecode = True
+os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
+from pathlib import Path
+import subprocess
+r = Path('/content/deepaa_workspace/repo')
+def inspect_git(*args):
+    result = subprocess.run(['git', '--no-optional-locks', *args], cwd=r,
+                            capture_output=True, text=True)
+    print(args, 'exit=', result.returncode, result.stdout, result.stderr)
+inspect_git('--version')
+inspect_git('config', '--show-origin', '--get-regexp', r'^(core\.(autocrlf|eol|checkstat)|diff\.autoRefreshIndex)$')
+for name in ('docs/README.md', 'daa_ham10000_interpretability_fixed_v2.py'):
+    print(name, 'actual_size=', (r/name).stat().st_size)
+    inspect_git('ls-files', '--debug', '--', name)
+    inspect_git('check-attr', 'text', 'eol', '--', name)
+    inspect_git('hash-object', '--path='+name, name)
+    inspect_git('rev-parse', 'HEAD:'+name)
+```
+
+After senior review/commit/rebuild, use the new notebook, ZIP and receipt as one
+release. Preserve the failed extraction/checkout; do not repair it in place.
+To use the corrected release in the same supervised runtime, set `PAYLOAD` and
+`WORKSPACE` to new absent `/content/...` paths in the setup cell before running
+verification. The reported failed restore never installed `ENV` or prepared
+`LOCAL_DATA`; keep their existing absence checks. Do not change the fixed
+`DURABLE` project location or clear any attempt/launch records. Run setup through
+readiness in order and stop for senior review with primary launch disabled.
 
 Use isolated Python3.13.3 and `requirements_colab.txt`, not notebook kernel
 defaults. Missing wheels, driver incompatibility or failed installation stop the

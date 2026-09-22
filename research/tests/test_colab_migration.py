@@ -14,6 +14,82 @@ from research.code import colab_transfer as transfer
 from research.code.workflow_evidence import write_new, read, hashes, sha
 
 
+def test_real_release_checkout_and_restore(tmp_path):
+    """Actual senior release, never a fabricated scientific receipt or model run."""
+    source = Path(__file__).resolve().parents[2]
+    release = Path(os.environ.get('DEEPAA_TEST_RELEASE', str(source.parent/
+        'colab_migration_release_bytecode_fix_20260922T070700040114Z')))
+    if not (release/'TRANSFER_RECEIPT.json').exists():
+        pytest.skip('Actual release unavailable; restore itself runs these gates in Colab')
+    receipt = read(release/'TRANSFER_RECEIPT.json')
+    payload = tmp_path/'payload'
+    package = transfer.extract_verified(release/receipt['archive'], receipt['sha256'], payload)
+    assert sha(payload/'PACKAGE.json') == receipt['package_manifest_sha256']
+    assert package['head'] == receipt['head']
+    before = transfer.inventory(payload)
+    workspace = tmp_path/'workspace'
+    if sys.platform.startswith('linux'):
+        root = transfer.restore(payload, workspace)
+        assert read(workspace/'RESTORE.json')['d019_registration_receipt'] == 'VERIFIED'
+    else:
+        root = transfer.checkout_source(payload, workspace)
+    assert transfer.inventory(payload) == before
+    assert not transfer.git(root, 'status', '--porcelain=v1', '--untracked-files=all')
+    transfer.verify_index(root, receipt['head'])
+    for name, entry in package['files'].items():
+        if name.startswith('source_bytes/'):
+            assert sha(root/name.removeprefix('source_bytes/')) == entry['sha256']
+    # Demonstrate the reported failure without touching the successful checkout.
+    old = tmp_path/'blanket_crlf'
+    subprocess.run(['git','clone','--no-checkout',str(payload/'history.bundle'),str(old)],check=True)
+    for key, value in (('core.autocrlf','true'),('core.eol','crlf')):
+        subprocess.run(['git','config',key,value],cwd=old,check=True)
+    subprocess.run(['git','checkout','--detach',receipt['head']],cwd=old,check=True)
+    index = transfer.verify_index(old, receipt['head'])
+    for p in (payload/'source_bytes').rglob('*'):
+        if p.is_file():
+            (old/p.relative_to(payload/'source_bytes')).write_bytes(p.read_bytes())
+    assert transfer.git(old,'status','--porcelain=v1','--untracked-files=all')
+    assert not transfer.git(old,'diff','--stat')
+    assert transfer.verify_index(old, receipt['head']) == index
+    # A true edit must still fail the source guard; no broad partial/dirty bypass.
+    (root/'research/COLAB_MIGRATION.md').write_bytes(b'not the reviewed source\n')
+    with pytest.raises(ValueError, match='Dirty source/index'):
+        runtime.source_guard(root, package)
+
+
+def test_visible_subprocess_failure_keeps_output(tmp_path, capsys):
+    log = tmp_path/'failure.log'
+    with pytest.raises(subprocess.CalledProcessError) as failure:
+        transfer.run_visible([sys.executable,'-B','-u','-c',
+            "import sys; print('progress'); print('failure detail',file=sys.stderr); sys.exit(7)"], log=log)
+    assert failure.value.returncode == 7
+    assert 'progress' in log.read_text() and 'failure detail' in log.read_text()
+    assert 'failure detail' in capsys.readouterr().out
+    with pytest.raises(FileExistsError):
+        transfer.run_visible([sys.executable,'-c','pass'],log=log)
+
+
+def test_cli_result_is_separate_from_diagnostics(tmp_path, monkeypatch, capsys):
+    import runpy
+    class FixtureQueue:
+        def __init__(self, *args): pass
+        def readiness(self):
+            print('fixture progress', file=sys.stderr)
+            return dict(path='fixture/READINESS.json', sha256='fixture')
+    monkeypatch.setattr(runtime, 'ColabQueue', FixtureQueue)
+    output = tmp_path/'result.json'
+    tool = Path(__file__).resolve().parents[1]/'tools/colab_migration.py'
+    monkeypatch.setattr(sys, 'argv', [str(tool), 'readiness', '--payload', str(tmp_path),
+        '--workspace', str(tmp_path), '--durable', str(tmp_path), '--dataset', str(tmp_path),
+        '--result-output', str(output)])
+    runpy.run_path(str(tool), run_name='__main__')
+    assert read(output) == dict(path='fixture/READINESS.json', sha256='fixture')
+    assert 'fixture progress' in capsys.readouterr().err
+    with pytest.raises(SystemExit):
+        runpy.run_path(str(tool), run_name='__main__')
+
+
 def test_fresh_notebook_import_preserves_extracted_payload_inventory(tmp_path):
     root=Path(__file__).resolve().parents[2]
     notebook=read(root/'research/notebooks/stability_v1_colab.ipynb')

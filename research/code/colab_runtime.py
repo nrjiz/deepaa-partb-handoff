@@ -17,7 +17,7 @@ import sys
 import time
 import uuid
 
-from .colab_transfer import inventory, verify_tree, copy_new, stamp, git
+from .colab_transfer import inventory, verify_tree, copy_new, stamp, git, verify_index
 from .workflow_evidence import read, write_new, require, sha, hashes
 
 CONFIRMATION = 'I deleted or disconnected all previous project runtimes and will use only this project session.'
@@ -68,6 +68,7 @@ def no_competing():
 def source_guard(root, package):
     require(package['release'] and not package['source_status'], 'Draft package cannot launch')
     require(git(root,'rev-parse','HEAD')==package['head'],'Reviewed HEAD differs')
+    verify_index(root, package['head'])
     require(not git(root,'status','--porcelain=v1','--untracked-files=all'),'Dirty source/index')
     from .constants import BASELINE_SOURCE, BASELINE_SOURCE_SHA256, MANIFEST_SHA256
     require(sha(root/BASELINE_SOURCE)==BASELINE_SOURCE_SHA256,'Protected source bytes')
@@ -90,12 +91,16 @@ def verify_images(dataset, spec):
 
 
 def prepare_images(drive_dataset, local_dataset, spec):
+    print('Dataset: verifying Drive source images and metadata.', flush=True)
     verify_images(drive_dataset,spec)
     require(shutil.disk_usage(local_dataset.parent).free > sum(v['bytes'] for v in spec['files'].values())+4*1024**3,
             'Insufficient runtime-local data/output headroom')
     local_dataset.mkdir(exist_ok=False)
-    for rel in [*spec['files'],'HAM10000_metadata.csv']:
+    for index, rel in enumerate([*spec['files'],'HAM10000_metadata.csv'], 1):
         copy_new(drive_dataset/rel,local_dataset/rel)
+        if index % 1000 == 0:
+            print(f'Dataset: copied and hashed {index} files.', flush=True)
+    print('Dataset: verifying runtime-local inventory.', flush=True)
     verify_images(local_dataset,spec)
 
 
@@ -162,6 +167,7 @@ def worker(root, workspace, mode, arguments, log, *, seed=113, monitor=None):
     if mode in ('validate','pair_verify','aggregate'):
         env['CUDA_VISIBLE_DEVICES']='-1'
     command=[sys.executable,'-B','-u',str(root/'research/tools/colab_gpu_worker.py'),mode,*map(str,arguments)]
+    print(f'Worker starting: {mode}; log={log}', file=sys.stderr, flush=True)
     log.parent.mkdir(parents=True,exist_ok=True)
     with log.open('x') as handle:
         child=subprocess.Popen(command,cwd=workspace/'aliases',env=env,stdout=handle,stderr=subprocess.STDOUT)
@@ -183,6 +189,11 @@ def worker(root, workspace, mode, arguments, log, *, seed=113, monitor=None):
         try: monitor()
         except Exception as exc: errors.append(repr(exc))
     write_new(log.with_suffix('.exit.json'),dict(exit_code=code,utc=stamp(),persistence_errors=errors))
+    print(f'Worker finished: {mode}; exit={code}; log={log}', file=sys.stderr, flush=True)
+    if code or errors:
+        with log.open('rb') as handle:
+            handle.seek(max(0, log.stat().st_size - 12000))
+            print(handle.read().decode(errors='replace'), file=sys.stderr, flush=True)
     require(code==0 and not errors,f'Worker failed or persistence failed; no next run. See {log}; {errors[:1]}')
 
 
