@@ -12,6 +12,7 @@ from pathlib import Path, PurePosixPath
 import shutil
 import subprocess
 import sys
+import struct
 import zipfile
 from datetime import datetime, timezone
 
@@ -270,6 +271,65 @@ def verify_index(root, head):
     return hashlib.sha256(index).hexdigest()
 
 
+def snapshot_attributes(source):
+    """Describe exact snapshot EOLs before checkout; never rewrite snapshot bytes."""
+    rules = []
+    for path in sorted(source.rglob('*')):
+        if not path.is_file():
+            continue
+        data = path.read_bytes()
+        if b'\0' in data or b'\n' not in data:
+            continue
+        crlf = data.count(b'\r\n')
+        name = path.relative_to(source).as_posix()
+        rules.append(json.dumps(name) + (' text eol=crlf\n' if crlf else ' text eol=lf\n'))
+    return ''.join(rules)
+
+
+def refresh_snapshot_stat_cache(root, source, head):
+    """Invalidate only stat sizes, then let Git refresh, after content identity proof.
+
+    Git treats a nonzero cached size mismatch as modified before comparing filtered
+    content. Mixed EOL snapshots cannot always have checkout's size. No blob ID,
+    mode, stage, flag, path or working-tree byte is changed by this operation.
+    """
+    before = verify_index(root, head)
+    changed = subprocess.check_output(['git','--no-optional-locks','diff-files','--name-only','-z'],cwd=root)
+    names = [n.decode('utf-8') for n in changed.split(b'\0') if n]
+    if not names:
+        return
+    for name in names:
+        require((source/name).is_file() and sha(root/name)==sha(source/name), 'Changed file outside exact source snapshot')
+        require(git(root,'hash-object','--path='+name,name)==git(root,'rev-parse',head+':'+name),
+                'Snapshot filtered content differs from reviewed commit')
+    path = root/'.git/index'
+    original = path.read_bytes()
+    require(original[:4]==b'DIRC' and struct.unpack('!I',original[4:8])[0]==2,
+            'Expected disposable index format v2')
+    require(hashlib.sha1(original[:-20]).digest()==original[-20:], 'Index checksum mismatch')
+    data = bytearray(original); offset = 12
+    for _ in range(struct.unpack('!I',data[8:12])[0]):
+        start = offset
+        flags = struct.unpack('!H',data[start+60:start+62])[0]
+        require(not flags & 0x4000, 'Extended index entry requires review')
+        end = data.index(0,start+62)
+        name = bytes(data[start+62:end]).decode('utf-8')
+        if name in names:
+            data[start+36:start+40] = b'\0'*4  # stat size only; NOT the blob or flags
+        offset = start + ((end+1-start+7)//8)*8
+    data[-20:] = hashlib.sha1(data[:-20]).digest()
+    # Use Git's lock convention; never overwrite a competing index lock.
+    lock = root/'.git/index.lock'
+    with lock.open('xb') as handle:
+        require(path.read_bytes()==original, 'Index changed concurrently')
+        handle.write(data); handle.flush(); os.fsync(handle.fileno())
+    os.replace(lock,path)
+    subprocess.run(['git','update-index','--refresh'],cwd=root,check=True)
+    require(verify_index(root,head)==before, 'Stat refresh changed index entries')
+    for name in names:
+        require(sha(root/name)==sha(source/name), 'Stat refresh changed snapshot bytes')
+
+
 def checkout_source(payload, workspace):
     """Disposable checkout, also testable on Windows; original repositories are untouched."""
     m = read(payload/'PACKAGE.json')
@@ -282,11 +342,12 @@ def checkout_source(payload, workspace):
     subprocess.run(['git','clone','--no-checkout',str(payload/'history.bundle'),str(root)],check=True)
     subprocess.run(['git','config','core.autocrlf','input'],cwd=root,check=True)
     subprocess.run(['git','config','core.eol','lf'],cwd=root,check=True)
-    # The reviewed snapshot is LF except for the protected CRLF baseline. Match
-    # checkout sizes to that snapshot; blanket CRLF leaves false-dirty stat entries
-    # after an LF overlay, even though Git's normalized content diff is empty.
+    subprocess.run(['git','config','index.version','2'],cwd=root,check=True)
+    subprocess.run(['git','config','core.splitIndex','false'],cwd=root,check=True)
+    # Select each file's checkout EOL from the verified snapshot, including the
+    # packaged notebook. A release may contain both LF and CRLF source files.
     with (root/'.git/info/attributes').open('x', encoding='utf-8') as handle:
-        handle.write(f'{BASELINE_SOURCE} text eol=crlf\n')
+        handle.write(snapshot_attributes(payload/'source_bytes'))
     subprocess.run(['git','checkout','-b','colab-reviewed',m['head']],cwd=root,check=True)
     subprocess.run(['git','remote','remove','origin'],cwd=root,check=True)
     index_before = verify_index(root, m['head'])
@@ -297,6 +358,7 @@ def checkout_source(payload, workspace):
             dest.parent.mkdir(parents=True,exist_ok=True)
             dest.write_bytes(p.read_bytes())
     require(verify_index(root, m['head']) == index_before, 'Overlay changed index entries')
+    refresh_snapshot_stat_cache(root, payload/'source_bytes', m['head'])
     require(not git(root,'status','--porcelain=v1','--untracked-files=all'), 'Restored source not Git-clean')
     for name, entry in m['files'].items():
         if name.startswith('source_bytes/'):
@@ -356,6 +418,6 @@ print('D-019 registration, receipt, original/external evidence and archive verif
     write_new(workspace/'RESTORE.json',dict(head=m['head'],package_sha256=sha(payload/'PACKAGE.json'),
                relocation_sha256=sha(payload/'RELOCATION.json'),
                index_entries_sha256=verify_index(root, m['head']), d019_registration_receipt='VERIFIED',
-               byte_policy='exact source snapshot; LF checkout with protected baseline eol=crlf'))
+               byte_policy='exact source snapshot; per-file checkout EOL from verified bytes'))
     print('Restore complete. GPU readiness and primary launch remain pending.', flush=True)
     return root

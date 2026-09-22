@@ -18,7 +18,7 @@ def test_real_release_checkout_and_restore(tmp_path):
     """Actual senior release, never a fabricated scientific receipt or model run."""
     source = Path(__file__).resolve().parents[2]
     release = Path(os.environ.get('DEEPAA_TEST_RELEASE', str(source.parent/
-        'colab_migration_release_bytecode_fix_20260922T070700040114Z')))
+        'colab_migration_release_restore_fix_20260922T132355616693Z')))
     if not (release/'TRANSFER_RECEIPT.json').exists():
         pytest.skip('Actual release unavailable; restore itself runs these gates in Colab')
     receipt = read(release/'TRANSFER_RECEIPT.json')

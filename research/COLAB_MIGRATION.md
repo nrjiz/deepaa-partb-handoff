@@ -1,3 +1,5 @@
+> D-021 supersedes the six-run procedure below. For this release use [COLAB_K7_SINGLE.md](COLAB_K7_SINGLE.md): one independent K7/latent6/seed113 run. The legacy queue stays disabled. Historical notes follow.
+
 # D-020 supervised Colab migration
 
 Implemented 2026-09-21 following the senior's prospective instruction. This
