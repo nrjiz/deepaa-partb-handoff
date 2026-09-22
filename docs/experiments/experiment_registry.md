@@ -1,5 +1,21 @@
 # Experiment registry
 
+## D-020 attempt ledger preparation — 2026-09-21
+
+- K5/latent4/seed503 original: `research/runs/stability_v1/K5/seed_503`, execution
+  `4a5daa34f68d9a68b3b024bb87c7c9ff5c85ccc2`, interrupted without a resumable
+  checkpoint (8 complete epochs; final recorded epoch9/batch150). Retained,
+  never relabeled COMPLETED or excluded from the attempt audit.
+- Fresh K5/seed503 GPU attempt: authorized operational design, **NOT STARTED**.
+  Exact timestamped sibling, new execution revision and log are registered only
+  at the senior's future reviewed Colab launch. Starts epoch1; no model resume.
+- Remaining K7 seeds113/211/307/401/503: **NOT STARTED**, sequentially queued after
+  the new seed503 attempt, with unchanged frozen settings and seed113 reference.
+- Colab target GPU, environment, data-byte verification and timings: **PENDING**.
+  No CPU/GPU numerical equivalence is claimed. Existing K5 work is validated
+  before reuse; D-019 remains specific to seed401. See D-020 and the migration
+  runbook for preservation, explicit path mapping, durable receipts and gates.
+
 Two primary runs and one reference/candidate stability comparison are completed and validated as of 2026-09-13. Copy the template below once per run. Do not overwrite completed entries; update `status` and append dated notes.
 
 ## Run template

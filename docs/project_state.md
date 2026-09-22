@@ -1,5 +1,18 @@
 # Project state
 
+## Colab migration implementation — 2026-09-21
+
+D-020 authorizes preparation of a supervised GPU queue: one fresh K5/seed503
+attempt from epoch 1, then K7 seeds113/211/307/401/503. The interrupted Windows
+seed503 attempt remains unchanged and is preserved separately. No new primary
+training has run. Existing completed work and D-019 seed401 recovery are retained.
+See `research/COLAB_MIGRATION.md` and `research/notebooks/stability_v1_colab.ipynb`.
+Senior Git review/release packaging, target GPU/environment/data verification and
+readiness approval remain required. Windows pin/lock/markers remain untouched.
+The single-runtime procedure relies on the senior disconnecting/deleting other
+project runtimes; Drive records are not an atomic cross-runtime lock. Mixed
+hardware/environment is a limitation of seed-only interpretation.
+
 Last audited: **2026-09-13** (second-run validation and first stability pair).
 
 ## First held-out stability comparison: 2026-09-13
