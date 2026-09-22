@@ -23,6 +23,24 @@ interpretation; no CPU/GPU numerical-equivalence claim is made.
 
 ## Packaging and provenance
 
+Setup fix (2026-09-22): immediately after importing `sys`/`os`, the first setup
+cell sets `sys.dont_write_bytecode = True` and
+`os.environ['PYTHONDONTWRITEBYTECODE'] = '1'`, before any research package import.
+The first setting protects the running notebook kernel; the environment setting
+also protects child interpreters. Without them, importing `colab_transfer` can
+create `__pycache__/*.pyc` inside the extracted payload before `restore()` checks
+its inventory. Those additions correctly fail the unchanged integrity check.
+The fresh-process regression starts with bytecode enabled, executes the notebook's
+actual bootstrap settings, imports extracted transfer code and verifies that
+the complete file/directory inventory remains unchanged.
+
+Use the newly committed/rebuilt release notebook and ZIP together. For the
+reported setup failure (WORKSPACE absent, payload containing new bytecode),
+start a fresh runtime and rerun the corrected setup from a fresh extraction.
+Do not amend PACKAGE.json, exclude bytecode from inventory verification, or
+overwrite a previous release/preservation package. Original research evidence
+and all integrity checks remain unchanged.
+
 `build_colab_transfer.py` writes only a new external destination. It checks free
 space, copies/hashes the interrupted run, log, both relevant sessions, lock and
 pin, inventories all 10015 JPEGs and metadata without copying images, and includes

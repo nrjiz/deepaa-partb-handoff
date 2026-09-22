@@ -1,7 +1,9 @@
 """D-020 fixtures only: no TensorFlow import, GPU or local model training."""
 import hashlib
 import json
+import os
 from pathlib import Path
+import subprocess
 import sys
 import zipfile
 
@@ -10,6 +12,61 @@ import pytest
 from research.code import colab_runtime as runtime
 from research.code import colab_transfer as transfer
 from research.code.workflow_evidence import write_new, read, hashes, sha
+
+
+def test_fresh_notebook_import_preserves_extracted_payload_inventory(tmp_path):
+    root=Path(__file__).resolve().parents[2]
+    notebook=read(root/'research/notebooks/stability_v1_colab.ipynb')
+    setup=next(c for c in notebook['cells'] if c['cell_type']=='code')['source']
+    index=next(i for i,line in enumerate(setup) if line.startswith('import ') and 'sys' in line and 'os' in line)
+    assert setup[index+1:index+3]==[
+        'sys.dont_write_bytecode = True\n',
+        "os.environ['PYTHONDONTWRITEBYTECODE'] = '1'\n",
+    ]
+    bootstrap=''.join(setup[index:index+3])
+    # Extract actual transfer code and its three local dependencies, never pyc files.
+    archive=tmp_path/'transfer_fixture.zip'
+    files={}
+    with zipfile.ZipFile(archive,'w') as z:
+        for name in ('__init__.py','colab_transfer.py','workflow_evidence.py','constants.py'):
+            data=(root/'research/code'/name).read_bytes()
+            member='source_bytes/research/code/'+name
+            files[member]=dict(bytes=len(data),sha256=hashlib.sha256(data).hexdigest())
+            z.writestr(member,data)
+        z.writestr('PACKAGE.json',json.dumps(dict(files=files)))
+    payload=tmp_path/'payload'
+    transfer.extract_verified(archive,sha(archive),payload)
+    before=transfer.inventory(payload)
+    env=dict(os.environ)
+    for name in ('PYTHONDONTWRITEBYTECODE','PYTHONPYCACHEPREFIX','PYTHONPATH'):
+        env.pop(name,None)
+    # No -B: the child must begin with bytecode enabled, unlike the pytest parent.
+    code='''
+import sys, os
+from pathlib import Path
+import hashlib
+assert not sys.dont_write_bytecode
+assert 'PYTHONDONTWRITEBYTECODE' not in os.environ
+payload=Path(sys.argv[1])
+def inventory():
+    return {p.relative_to(payload).as_posix():
+            (p.stat().st_size, hashlib.sha256(p.read_bytes()).hexdigest())
+            if p.is_file() else 'directory' for p in payload.rglob('*')}
+before=inventory()
+exec(sys.argv[2])
+assert sys.dont_write_bytecode and os.environ['PYTHONDONTWRITEBYTECODE']=='1'
+assert 'research.code.colab_transfer' not in sys.modules
+sys.path.insert(0,str(payload/'source_bytes'))
+from research.code import colab_transfer
+assert Path(colab_transfer.__file__).resolve()==(payload/'source_bytes/research/code/colab_transfer.py').resolve()
+assert inventory()==before, 'Import mutated extracted payload'
+assert not list(payload.rglob('__pycache__')) and not list(payload.rglob('*.pyc'))
+print('fresh-process payload inventory unchanged')
+'''
+    result=subprocess.run([sys.executable,'-c',code,str(payload),bootstrap],cwd=tmp_path,
+                          env=env,capture_output=True,text=True,check=True)
+    assert 'fresh-process payload inventory unchanged' in result.stdout
+    assert transfer.inventory(payload)==before
 
 
 def test_snapshot_roundtrip_and_corruption(tmp_path):
