@@ -19,6 +19,8 @@ if __name__=='__main__':
     p.add_argument('--single-runtime-confirmation')
     p.add_argument('--result-output', type=Path, help='New JSON result file, separate from progress and diagnostics')
     a=p.parse_args();q=ColabQueue(a.payload,a.workspace,a.durable,a.dataset)
+    if a.action=='launch':
+        p.error('D-021: legacy six-run Colab launch disabled; K7 single-run preparation is pending. K5/seed503 belongs to Windows.')
     if a.result_output and a.result_output.exists():
         p.error('Result output exists; review before repeating')
     if a.action=='readiness': result=q.readiness()

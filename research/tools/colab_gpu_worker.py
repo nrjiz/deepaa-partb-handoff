@@ -103,6 +103,7 @@ def main():
     elif mode=='benchmark':
         benchmark(int(a[0]),int(a[1]),Path(a[2]),Path(a[3]))
     elif mode=='train':
+        require(int(a[0])==7, 'D-021: K5/seed503 is Windows-owned; Colab training refused')
         gpu_environment()
         from research.code.runner import RunSpec,execute_run
         k,seed=int(a[0]),int(a[1]);dataset=Path(a[3])
