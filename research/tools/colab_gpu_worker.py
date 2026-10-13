@@ -124,7 +124,12 @@ def main():
             require(registered_path(ROOT,state,k,s,ROOT/'research/runs/stability_v1/K5/seed_401')==run.resolve(),
                     'D-019 registered path/receipt mismatch')
         approved=list(HISTORICAL.values())+[TRAINING_REVISION,a[3]]
-        write_new(Path(a[4]),validate_run(ROOT,run,k,s,approved))
+        if (k,s)==(7,113):
+            from research.code.colab_k7_validation import validate_k7_reference
+            result=validate_k7_reference(ROOT,run,approved)
+        else:
+            result=validate_run(ROOT,run,k,s,approved)
+        write_new(Path(a[4]),result)
     elif mode=='compare':
         ref,cand,pair=map(Path,a)
         for tool,extra in [('align_validation_coefficients.py',['--output-dir',str(pair/'alignment')]),

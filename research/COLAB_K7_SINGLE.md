@@ -1,5 +1,13 @@
 # Independent K7/latent6/seed113 preparation (D-021)
 
+ST-04A review update (2026-10-13): the K7 post-training worker now routes only
+K7/latent6/seed113 through the schema-scoped adapter described in
+`COLAB_K7_VALIDATION.md`. Shared D-019-bound validation and scientific code remain
+unchanged. New complete-worker synthetic regressions are included in the target
+orchestration cell. This uncommitted checkout may only produce a disabled draft;
+a new reviewed clean commit/release and fresh Colab readiness are required before
+any primary launch. No readiness or K7 scientific result is established locally.
+
 This supersedes the six-run Colab notebook instructions for this release. It
 prepares ONE frozen K7 reference run, seed113, from epoch 1. The frozen config
 and unchanged model_adapter define latent_dimension = K - 1: K7 means latent6,
