@@ -330,6 +330,19 @@ def refresh_snapshot_stat_cache(root, source, head):
         require(sha(root/name)==sha(source/name), 'Stat refresh changed snapshot bytes')
 
 
+def checkout_reviewed_branch(root, head):
+    """Never move an existing reviewed branch to a different commit."""
+    branch = 'refs/heads/colab-reviewed'
+    probe = subprocess.run(['git','show-ref','--verify','--quiet',branch],cwd=root)
+    require(probe.returncode in (0,1), 'Cannot inspect reviewed branch')
+    if probe.returncode == 0:
+        require(git(root,'rev-parse',branch)==head, 'Existing reviewed branch differs from approved HEAD')
+        subprocess.run(['git','checkout','colab-reviewed'],cwd=root,check=True)
+    else:
+        subprocess.run(['git','checkout','-b','colab-reviewed',head],cwd=root,check=True)
+    require(git(root,'rev-parse','HEAD')==head, 'Reviewed checkout HEAD mismatch')
+
+
 def checkout_source(payload, workspace):
     """Disposable checkout, also testable on Windows; original repositories are untouched."""
     m = read(payload/'PACKAGE.json')
@@ -348,7 +361,7 @@ def checkout_source(payload, workspace):
     # packaged notebook. A release may contain both LF and CRLF source files.
     with (root/'.git/info/attributes').open('x', encoding='utf-8') as handle:
         handle.write(snapshot_attributes(payload/'source_bytes'))
-    subprocess.run(['git','checkout','-b','colab-reviewed',m['head']],cwd=root,check=True)
+    checkout_reviewed_branch(root, m['head'])
     subprocess.run(['git','remote','remove','origin'],cwd=root,check=True)
     index_before = verify_index(root, m['head'])
     for p in (payload/'source_bytes').rglob('*'):
