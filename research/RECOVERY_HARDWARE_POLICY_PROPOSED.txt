@@ -1,0 +1,30 @@
+﻿PROPOSED HARDWARE POLICY — NOT ACCEPTED
+The current production checkpoint identity includes GPU UUID/name/driver and exact
+Python/package/build/float-policy records. UUID identifies a device, not merely a
+GPU model. A replacement Colab VM has no promise of the same device. Thus the current
+policy supports process recovery on retained hardware but is not a dependable plan
+for continuation after arbitrary Colab runtime loss. No guard was weakened.
+
+Proposed alternative for explicit prospective approval: preserve old and new UUIDs
+as provenance; define an approved compatibility class using GPU model/architecture,
+compute capability, driver, CUDA/cuDNN, TensorFlow/Python/wheel hashes, determinism,
+float32 and kernel/device configuration. Require exact within-device A/B/C and
+cross-device checkpoint replay against independently retained uninterrupted reference
+traces before accepting that class. Mismatch rejects exact continuation; no tolerance
+relaxation, CPU fallback or weights-only loading. Matching names alone is insufficient.
+Finite bounded replay does not prove all50 epochs. The reviewer must decide scope of
+additional full-data/budget evidence and whether a weaker statistical reproducibility
+claim would constitute a further scientific amendment. No such claim is approved.
+If same-device recovery is required, consider a separately authorized persistent
+hardware allocation. This task provisions nothing and assumes no paid resources.
+
+Route B preserves the intended normal sampling distribution but changes the random
+stream from original K5. K5/K7 comparisons must disclose RNG and environment changes;
+do not attribute differences to K alone. The scientific amendment remains pending.
+
+Official references reviewed during ST-RECOVERY-05:
+https://research.google.com/colaboratory/faq.html
+Colab GPU types/resources/runtime availability vary; no same-device guarantee stated.
+https://www.tensorflow.org/api_docs/python/tf/config/experimental/enable_op_determinism
+TensorFlow deterministic execution requires the same hardware/software configuration;
+determinism is not a promise across arbitrary configurations.

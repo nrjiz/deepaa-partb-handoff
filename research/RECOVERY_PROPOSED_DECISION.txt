@@ -1,0 +1,41 @@
+PROPOSED PROSPECTIVE DECISION — NOT ACCEPTED
+
+Approve or reject a separately versioned K7 sampling implementation:
+k7_philox_recovery_candidate_v1 uses checkpointable Philox standard-normal
+posterior sampling. It preserves the intended distribution, architecture, frozen
+loss/data/optimizer, but changes the random stream and training trajectory.
+It must not be labeled numerical reproduction of original frozen execution.
+
+If accepted prospectively, retain K7/latent6; predetermined seeds113,211,307,401,503;
+reference113;50 TOTAL logical epochs; batch32; Adam0.001; frozen objective/model
+layers, dataset membership/order rules, matching, test and bootstrap methodology.
+Use the same accepted implementation for all future K7 seeds, under individually
+reviewed execution support. Do not run other seeds through the current seed113-only
+release. Record effective date, exact source identity and any prior K7 attempts.
+
+K5 evidence stays immutable. K5 versus amended K7 comparisons must disclose both
+RNG implementation and environment differences. Do not attribute differences to K
+alone or claim identical seed trajectories. Decide explicitly whether separate
+reporting/sensitivity analysis is needed; no automatic K5 retraining or exclusion.
+
+D-020/D-021 currently prohibit primary resume. A new accepted decision would permit
+only reviewed full-state child continuations of a registered logical attempt, not
+fresh replacements or weights-only loading. Bind original registration, exact
+checkpoint receipt, source/package, data, environment, readiness and parent segment.
+Preserve failures, permanent claims and every segment. Require exclusive single
+runtime ownership plus manual review of prior death; Drive is not a distributed lock.
+Do not edit historical model_resume=false records. No automatic cleanup or retry.
+Epoch count and optimizer progress must continue toward50, never50 more epochs.
+Only final logical epoch50 is eligible for frozen evaluation; no score-based choice.
+Rollback requires an explicit earlier verified checkpoint and a record of discarded
+uncommitted work. Refuse corrupt/incomplete checkpoints, source/data/environment
+mismatches, unavailable/incompatible GPU and numerical equivalence failures.
+
+Approval of the scientific amendment does not itself authorize code commits,
+release packaging, resource provisioning or launch. Review each separately.
+D-019 remains its historical seed401 export-only exception; preserve original bound
+code/receipts. Any new integration must use separate code and explicit validator
+provenance; historical receipts cannot be rewritten to accept amended execution.
+
+Current recommendation: review this candidate and amendment first. No primary
+resume is authorized by ST-RECOVERY-03 or by its passing CPU engineering tests.

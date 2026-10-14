@@ -1,0 +1,65 @@
+﻿COLAB GPU ACCEPTANCE — PROPOSED, NOT AUTHORIZED OR PERFORMED
+1. Review Route B amendment and exact candidate hashes/diff. Resolve K5/K7 reporting
+   implications before any primary promotion. Keep ST-04N immutable/nonresumable.
+2. Review production integration separately: explicit child-segment authorization,
+   original-claim handling,50-epoch budget, final-epoch export, independent validator
+   and interrupted-persistence failure policy. The current harness is bounded to
+   three engineering epochs and cannot launch a primary run.
+3. Obtain specific authorization for isolated GPU engineering tests/resources.
+   Use no production attempt directories. Verify new source/package, protected
+   files, Python/TF/CUDA/cuDNN/wheel locks, GPU identity, all dataset byte hashes,
+   frozen manifests, determinism and resource/quota headroom. Record every identity.
+4. Repeat A/B/C on identical GPU hardware/software in fresh processes. Include both
+   fixture sizes, partial batches, multiple epochs/repeated forced kills and the
+   full5000-item iterator test. Compare all saved and subsequent tensors exactly.
+   CPU/GPU equality is neither assumed nor required for within-GPU comparisons.
+5. Extend to full8011-image data and a separately authorized longer/full-budget
+   engineering acceptance if required by the scientific reviewer. Short fixture
+   equality does not prove all50 epochs. Keep validation/test use frozen; engineering
+   checkpoint selection must never use performance.
+6. Test actual Drive writes/readbacks and independently downloaded/retrieved bytes
+   after a disconnected/remounted runtime. Inject incomplete transfer, missing or
+   corrupt shards/receipts, quota failure, actual killed serializer and loss between
+   checkpoint creation and durable sealing. Never accept an incomplete receipt.
+7. Measure full checkpoint size, save latency, transfer latency, GPU/RAM and Drive
+   quota with replicas and retained history. Define and review persistence-failure
+   behavior. No automatic deletion of earlier checkpoints or evidence.
+8. Review source/data/environment mismatch rejection, single-owner behavior and
+   immutable original/child provenance. A local OS lock does not exclude a second
+   Colab runtime. Manual single-runtime authorization remains required.
+9. On any mismatch: preserve first divergence/failure and block primary promotion.
+   No CPU fallback, changed seed, warm-start or tolerance relaxation.
+10. Only after scientific and target acceptance, seek separate commit/release
+    authorization. Build from the actual approved clean new HEAD; independently
+    verify packaged restoration and regression tests. No manual manifest changes.
+    Fresh target readiness and a reviewed digest are required for that exact release.
+11. Primary launch or continuation requires separate explicit authorization for
+    the exact attempt/segment. No seed queue or automatic next run.
+
+ST-RECOVERY-04 integration additions (still proposed):
+Candidate modules: research/code/recoverable_*; CLI: tools/colab_recoverable_k7.py.
+Draft notebooks cannot execute; restore_review restores bytes for review only,
+never a fake clean Git checkout. A new reviewed commit/release is still required.
+Every epoch must persist before the next; interrupted work since the last verified
+persisted epoch may be lost. At epoch50, resume exports/validates with no updates.
+Explicit segment authorization binds variant, head, package/scientific-decision/
+readiness digests, action, segment ID, latent6 and50 epochs. Continue also binds
+parent segment, prior-runtime death review and explicit checkpoint receipt/path.
+No latest discovery. Checkpoints may come only from the registered parent lineage.
+Target acceptance must produce an independently reviewed record with status
+RECOVERY_GPU_ACCEPTANCE_REVIEWED, variant, package_sha256, current boot_id and
+stable environment: python,versions,freeze,tensorflow_build,float_policy plus
+nvidia-smi UUID/name/driver. Do not fabricate acceptance from local Windows tests.
+Original-RNG readiness is insufficient. Same GPU UUID is conservatively required;
+a broader hardware policy requires separate review. No CPU fallback.
+Fixed project Drive namespace and original logical registration remain mandatory.
+Immutable segment/SUPERSEDED records retain owner history. Local kernel locking
+and manual single-runtime discipline are both required; Drive is not a distributed
+lock. No automatic takeover, cleanup or retry.
+Use a separately reviewed bounded GPU harness against the integrated modules;
+ST-RECOVERY-03 validates the RNG design but does not prove this integrated full
+runner's50-epoch GPU equivalence. Keep tensor observations in that test harness,
+never in the primary-capable worker. Test final-epoch export and scoped validation.
+After scientific/GPU acceptance: separately approve commit; review actual HEAD;
+build new clean matching release; verify production restoration and fresh target
+readiness; separately authorize the exact segment. No execution authorized here.

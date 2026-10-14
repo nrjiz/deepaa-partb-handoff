@@ -1,0 +1,68 @@
+﻿ST-RECOVERY-05 GPU ENGINEERING OPERATOR PROCEDURE
+This package is executable for bounded engineering only. No production approval.
+Use the exact matching recovery_gpu_acceptance.ipynb, colab_transfer.zip and
+TRANSFER_RECEIPT.json from the final release directory in the verification report.
+The receipt binds notebook/ZIP/PACKAGE SHA256 and actual clean committed HEAD.
+Never mix with ST-04N or earlier candidate notebooks. Historical runbooks are
+preserved; this procedure and the engineering notebook govern this package.
+
+1. Review the report and hashes. Obtain an authorized Colab GPU allocation.
+   Upload all three matched files to MyDrive/DeepAA_recovery_acceptance_package.
+   Open that exact notebook. No source fetch from a public repository.
+2. Preserve failed runtime logs/claims first. Use one project runtime at a time.
+   Review Drive remote quota (filesystem free bytes are not proof of quota).
+   Leave all production DeepAA_stability_v1_D020 records untouched.
+3. Cell1: set a new alphanumeric ENGINEERING_ID. Leave primary launch False.
+   Fresh payload/workspace/environment paths must be absent. Mount Drive.
+   This task creates only MyDrive/DeepAA_recovery_engineering/<ENGINEERING_ID>.
+4. Execute code cells3,5,7,9 in order (zero-based JSON cell indices).
+   Verify receipt/digests, exact clean restoration and D-019 aliases; install
+   Python3.13.3 and frozen pins with --force-reinstall, pip check and wheel lock;
+   verify/copy all10015 JPEGs+metadata; run engineering regressions, retain skips.
+5. Cell11: bounded GPU A/B/C acceptance,43 and171 training images,3 epochs each.
+   A uninterrupted; B checkpoints every epoch; C killed after persisted epochs1/2,
+   then fresh child processes restore explicit checkpoint receipts. Partial final
+   batches are11. The production epoch loop and checkpoint implementation are used;
+   engineering identity explicitly limits epoch budget to3 and batch count to2/6.
+   Primary budget remains50 and251; no fixture override reaches production identity.
+   All frozen input manifests are verified. Test/validation images are not used
+   for engineering optimizer steps; loss checks use separate training-member rows.
+   Exact input/label,model,Adam,RNG-state,loss and epoch-history comparisons must pass.
+   Drive checkpoint transfer/readback and receipt-last publication run each epoch.
+   No automatic retry. On any failure, preserve workspace and all durable objects.
+6. Cell13: export setup/restore/install/wheel-lock/regression/engineering logs with
+   complete hash inventory and completion receipt. Return the full engineering
+   directory and notebook output. No READY_FOR_PRIMARY status is generated.
+7. Fresh-runtime recovery test: after evidence export, disconnect the prior runtime
+   under authorized resource use. Mount Drive in an authorized new runtime; rerun
+   setup cells1,3,5,7,9 with the SAME ENGINEERING_ID and new absent local paths.
+   DO NOT rerun cell11 or13. Use this separate command in a new operator cell:
+   run_visible([PYTHON,'-B','-u',str(ROOT/'research/tools/recovery_engineering.py'),
+     'recover-session','--payload',str(PAYLOAD),'--dataset',str(LOCAL_DATA),
+     '--output',str(WORKSPACE/'fresh_runtime_engineering'),'--durable',str(DURABLE)],
+     env=dict(os.environ,PYTHONHASHSEED='113',TF_DETERMINISTIC_OPS='1',
+              MPLBACKEND='Agg',PYTHONDONTWRITEBYTECODE='1'),
+     log=WORKSPACE/'fresh_runtime_engineering.log')
+   A different boot ID is required. Original Drive evidence is rehashed after mount;
+   source,environment and GPU UUID must match. Checkpoint restore into fresh process
+   must pass before any engineering update. Different UUID/environment means STOP:
+   preserve rejection, do not change identity, skip checks or modify receipts.
+   Upload/return this runtime's setup lock/logs plus fresh_runtime_engineering.log
+   and fresh_<output_name>/evidence. A new physical GPU may make this test unavailable.
+8. Return exact receipt/PACKAGE, RESTORE.json, installation.json, resolved wheel lock,
+   regression log/skips, RUN.json, all ENVIRONMENT/IDENTITY records, A/B/C tensor NPZs,
+   epoch metrics, KILLED.json, checkpoint manifests/receipts/shards, COMPARISON.json,
+   ENGINEERING_RESULT.json, fresh-runtime result/rejection, checkpoint timings/bytes,
+   GPU memory, actual Drive quota and all snapshot inventories. Retain failed cases.
+
+Limits: bounded fixtures do not establish full8011-image/50-epoch equivalence.
+Full5000-buffer testing and longer acceptance may be required before promotion.
+Local Windows tests do not establish GPU kernels, Linux locks or Drive durability.
+The production worker remains subject to original claim and approval guards.
+No primary run, continuation, six-run queue, seed change or automatic next action.
+
+Shortest production path after successful engineering: review exact target evidence;
+accept prospective Route B scientific amendment and hardware policy; authorize
+production packaging from reviewed clean source; independently verify its own exact
+restoration; run fresh production readiness; review digest and authorize precisely
+K7/latent6/seed113. The engineering package cannot be promoted by flipping a flag.
