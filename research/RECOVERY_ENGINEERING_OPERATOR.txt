@@ -1,4 +1,4 @@
-﻿ST-RECOVERY-05 GPU ENGINEERING OPERATOR PROCEDURE
+ST-RECOVERY-06 CANDIDATE GPU ENGINEERING OPERATOR PROCEDURE
 This package is executable for bounded engineering only. No production approval.
 Use the exact matching recovery_gpu_acceptance.ipynb, colab_transfer.zip and
 TRANSFER_RECEIPT.json from the final release directory in the verification report.
@@ -7,16 +7,21 @@ Never mix with ST-04N or earlier candidate notebooks. Historical runbooks are
 preserved; this procedure and the engineering notebook govern this package.
 
 1. Review the report and hashes. Obtain an authorized Colab GPU allocation.
-   Upload all three matched files to MyDrive/DeepAA_recovery_acceptance_package.
+   Preserve the old upload folder and failed output before a future approved upload.
+   Upload the three matched files to MyDrive/DeepAA_recovery_acceptance_package.
    Open that exact notebook. No source fetch from a public repository.
 2. Preserve failed runtime logs/claims first. Use one project runtime at a time.
    Review Drive remote quota (filesystem free bytes are not proof of quota).
    Leave all production DeepAA_stability_v1_D020 records untouched.
-3. Cell1: set a new alphanumeric ENGINEERING_ID. Leave primary launch False.
-   Fresh payload/workspace/environment paths must be absent. Mount Drive.
+3. Cell1: enter a new ASCII alphanumeric ENGINEERING_ID at the runtime prompt.
+   Do not edit notebook source. Primary launch stays False.
+   Use a fresh runtime with absent payload/workspace/environment paths. Mount Drive.
    This task creates only MyDrive/DeepAA_recovery_engineering/<ENGINEERING_ID>.
 4. Execute code cells3,5,7,9 in order (zero-based JSON cell indices).
-   Verify receipt/digests, exact clean restoration and D-019 aliases; install
+   Verify receipt/digests and immutable packaged notebook bytes. The live Colab
+   notebook cell types/order/sources must match exactly; metadata and outputs may
+   change. Failure to obtain the live notebook stops verification.
+   Verify exact clean restoration and D-019 aliases; install
    Python3.13.3 and frozen pins with --force-reinstall, pip check and wheel lock;
    verify/copy all10015 JPEGs+metadata; run engineering regressions, retain skips.
 5. Cell11: bounded GPU A/B/C acceptance,43 and171 training images,3 epochs each.
