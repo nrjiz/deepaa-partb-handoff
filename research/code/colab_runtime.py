@@ -162,7 +162,7 @@ def verify_registration(record,k,s,package_hash,head,predecessor):
 
 
 def worker(root, workspace, mode, arguments, log, *, seed=113, monitor=None):
-    env=dict(os.environ,PYTHONHASHSEED=str(seed),TF_DETERMINISTIC_OPS='1',PYTHONDONTWRITEBYTECODE='1')
+    env=dict(os.environ,PYTHONHASHSEED=str(seed),TF_DETERMINISTIC_OPS='1',PYTHONDONTWRITEBYTECODE='1',MPLBACKEND='Agg')
     # Historical artifact checks use CPU inference, never CPU training.
     if mode in ('validate','pair_verify','aggregate'):
         env['CUDA_VISIBLE_DEVICES']='-1'
