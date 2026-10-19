@@ -1,5 +1,10 @@
 # Deep Archetypal Analysis on HAM10000 — Interpretability Version
 
+**Ali Yassine partner handoff:** Start with [PARTNER_START_HERE.md](PARTNER_START_HERE.md)
+for installation, JAFFE and HAM10000 K3 configurations, and safe update commands.
+This private repository preserves the historical HAM10000 code below. New
+experiments are separate proposals; no JAFFE training has been performed.
+
 This project applies **Deep Archetypal Analysis (DeepAA)** to the **HAM10000 skin lesion dataset** using **TensorFlow 2 / Keras**.
 
 The goal is not only to train a reconstruction model, but also to explain how DeepAA interprets **every skin lesion type** in the dataset using archetypes, visual examples, and table-ready metrics.

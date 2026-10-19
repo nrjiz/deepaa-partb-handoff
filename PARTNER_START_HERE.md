@@ -7,16 +7,16 @@ installation on your machine remain to be verified.
 
 ## Get the code the first time
 
-The intended repository below returned 404 during preparation on 19 October
-2026. The owner must confirm its private visibility, grant access, and publish
-the branch before these GitHub commands will work. Use the actual confirmed
-repository URL if the destination changes. Never make the repository public to
-work around an access error.
+The owner-created repository below was verified private with owner write access
+on 19 October 2026. Ali Yassine's GitHub account is `Amy007-ali`; accept the owner's
+collaboration invitation before cloning. Never make the repository public to
+work around an access error. This repository supersedes the inaccessible
+historical destination listed in older handoff notes.
 
 Install Git and Python 3.13.3, then open PowerShell in a directory for source code:
 
 ```powershell
-git clone --branch jaffe-partb --single-branch https://github.com/Amy007-ali/Deep-Archetypal-Analysis-on-HAM10000.git deepaa-partb
+git clone --branch jaffe-partb --single-branch https://github.com/nrjiz/deepaa-partb-handoff.git deepaa-partb
 Set-Location deepaa-partb
 git branch --show-current
 git status --short

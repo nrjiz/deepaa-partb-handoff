@@ -33,9 +33,10 @@ SHA256 for each image. Filename agreement alone cannot authenticate image bytes.
 
 ## Install and inspect (Windows PowerShell)
 
-Obtain the `jaffe-partb` branch from the repository owner. The existing remote is
-`https://github.com/Amy007-ali/Deep-Archetypal-Analysis-on-HAM10000`, but access and
-visibility were not established during handoff; do not assume it is published.
+Obtain the `jaffe-partb` branch from the private repository
+`https://github.com/nrjiz/deepaa-partb-handoff`. Ali Yassine (`Amy007-ali`) must
+accept the owner's collaborator invitation before cloning. The older
+`Amy007-ali/Deep-Archetypal-Analysis-on-HAM10000` destination is superseded.
 From the checkout root, use Python **3.13.3**:
 
 ```powershell

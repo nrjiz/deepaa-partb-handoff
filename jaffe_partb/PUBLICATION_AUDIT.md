@@ -1,5 +1,17 @@
 # Publication audit and destination
 
+## Publication destination update on 19 October 2026
+
+The owner created `https://github.com/nrjiz/deepaa-partb-handoff` and requested
+publication there for Ali Yassine (`Amy007-ali`). Repository metadata was checked:
+private visibility and owner push/admin access confirmed. The repository was
+empty before publication. Publish only `jaffe-partb`, with no force push, merge,
+or unrelated tags. This update supersedes the historical destination and access
+block below. It does not sanitize inherited history or change scientific code.
+Ali's invitation was sent by the owner; acceptance still needs verification.
+
+## Historical prepublication audit
+
 Existing remote: `https://github.com/Amy007-ali/Deep-Archetypal-Analysis-on-HAM10000.git`.
 The GitHub connector returned404. This may mean private/inaccessible or missing;
 **visibility is unverified**, not declared private or public. Existing push URL
