@@ -1,5 +1,8 @@
 # JAFFE Part B / RQ1 handoff
 
+For cloning, installation, configuration choice and later updates, start with
+[the partner setup guide](../PARTNER_START_HERE.md).
+
 This is a **separate proposed experiment**, not an amendment to completed HAM10000
 `archetype_stability_v1`. Start here rather than the historical root README. No
 JAFFE model has been trained or evaluated by this handoff. No HAM10000 outputs
