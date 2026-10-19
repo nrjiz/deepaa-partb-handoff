@@ -28,8 +28,14 @@ diagnosis checks and must not be run directly on JAFFE.
 
 Environment: Python3.13.3 and `requirements.txt` (TensorFlow2.21.0, NumPy2.5.2,
 pandas3.0.5, Matplotlib3.11.1, h5py3.14.0, Pillow12.3.0, SciPy1.18.1,
-pytest9.1.1). Keras is a TensorFlow dependency; the tested freeze is recorded
-separately. Fresh package availability and partner OS compatibility are untested.
+pytest9.1.1, Keras3.15.1). Keras is explicitly pinned to the tested runtime.
+Fresh package availability and partner OS compatibility are untested.
+
+Additional named HAM experiments use the original `load_journal_v1` and
+`make_tf_dataset` through `data.audit_ham/load_ham`, and the unchanged lesion
+functions through `analysis.compute_pair`. Additional K/seeds/reference selection
+are configuration inputs only; no inherited constants or model code are edited.
+See NEW_EXPERIMENTS.md for separate K3 examples and evaluation-unit dispatch.
 
 External items intentionally absent: JAFFE images/terms acceptance, actual image
 manifest, scientific approval, new results/weights, independent backup service.

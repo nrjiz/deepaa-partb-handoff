@@ -20,6 +20,24 @@ Completed locally in the existing Windows CPU Python3.13.3 environment:
 - Git object integrity checked. Historical source, frozen manifests, unrelated
   manuscript edits and accepted output hashes checked read-only.
 
+Follow-up verification:
+
+- Fresh Git clone of implementation commit `5ab108f583c5c9e153806bf7a700e0fb8a20da43`:
+  same18 checks passed in30.05s; protected model SHA256 matches the accepted bytes
+  without manually repairing the clone. All three configurations produce safe
+  plans, including HAM K3 and JAFFE K3. Fresh checkout remained clean.
+- Unchanged HAM `test_alignment`, `test_stability_metrics`,
+  `test_manifest_adapter`:18 passed in20.02s,56 dependency deprecation warnings.
+  The original matrix command was exercised in its default **dry-run** mode only.
+- Added synthetic figure/aggregate guard check:1 passed in26.64s, including
+  duplicate-pair refusal and null sampleSD for a one-pair configured experiment.
+  Total handoff test cases now19, plus18 inherited tests.
+- `pip install --dry-run --no-index -r jaffe_partb/requirements.txt` confirms all
+  direct and resolved requirements already satisfied locally, including explicitly
+  pinned Keras3.15.1. This did not install anything or prove clean-download access.
+-213 historical text blobs scanned for common credential patterns; no candidates.
+  Six historical blobs exceed5MiB. Audit remains bounded, not a secrecy guarantee.
+
 The first test run had12 passes and one failure: a plain LF checkout did not
 match the protected model's accepted CRLF SHA256. The new `.gitattributes` fixes
 checkout bytes, not model logic. The failed log remains in the local audit folder.

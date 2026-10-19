@@ -140,3 +140,24 @@ def test_ham_new_experiment_reuses_lesion_metrics(tmp_path):
     assert result['coefficient']['lesions']==5
     assert result['coefficient']['uncertainty']['unit']=='lesion_id'
     assert result['semantics']['classes']==c['classes']
+
+
+def test_figures_and_configured_aggregate(tmp_path):
+    from jaffe_partb.analysis import aggregate,figures
+    a=np.tile([1.,0,0,0,0],(10,1))
+    ra=fixture_run(tmp_path/'ref',113,a);rb=fixture_run(tmp_path/'cand',211,a)
+    # Adapt only this synthetic fixture's protocol to one K/two seeds.
+    for name,receipt in [('ref',ra),('cand',rb)]:
+        run=tmp_path/name;value=read(run/'configuration.json');value['protocol']['K']=[5];value['protocol']['seeds']=[113,211]
+        (run/'configuration.json').write_text(json.dumps(value))
+        from jaffe_partb.common import inventory
+        (run/'INVENTORY.json').write_text(json.dumps(inventory(run)))
+        rr=read(receipt);rr['inventory_sha256']=sha(run/'INVENTORY.json');receipt.write_text(json.dumps(rr))
+    args=SimpleNamespace(reference=tmp_path/'ref',candidate=tmp_path/'cand',reference_receipt=ra,candidate_receipt=rb,output=tmp_path/'pair')
+    pair(args);receipt=tmp_path/'pair_receipt.json';write(receipt,verify_pair(args.output))
+    figures(SimpleNamespace(pair=args.output,receipt=receipt,output=tmp_path/'figures'))
+    verify(tmp_path/'figures');assert (tmp_path/'figures/pair.pdf').is_file()
+    aggregate(SimpleNamespace(pair=[args.output],receipt=[receipt],output=tmp_path/'aggregate'))
+    result=read(tmp_path/'aggregate/aggregate.json');assert result['statistics'][0]['sample_sd'] is None
+    with pytest.raises(ValueError):
+        aggregate(SimpleNamespace(pair=[args.output,args.output],receipt=[receipt,receipt],output=tmp_path/'duplicate'))

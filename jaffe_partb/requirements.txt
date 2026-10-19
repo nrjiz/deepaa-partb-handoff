@@ -1,6 +1,7 @@
 # Validated infrastructure environment. GPU hosts may require the platform-specific
 # TensorFlow installation documented in external_gpu_execution.md.
 tensorflow==2.21.0
+keras==3.15.1
 numpy==2.5.2
 pandas==3.0.5
 matplotlib==3.11.1
