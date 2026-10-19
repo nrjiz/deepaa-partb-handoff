@@ -1,0 +1,4 @@
+# The accepted model's SHA256 binds CRLF bytes. Git stores its normalized blob.
+/daa_ham10000_interpretability_fixed_v2.py text eol=crlf
+/research/splits/journal_v1/*.csv text eol=lf
+/jaffe_partb/** text eol=lf

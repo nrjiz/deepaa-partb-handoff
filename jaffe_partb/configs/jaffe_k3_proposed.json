@@ -1,0 +1,60 @@
+{
+  "protocol": "partb_new_experiment_v1",
+  "status": "PROPOSED",
+  "K": [
+    3
+  ],
+  "seeds": [
+    113,
+    211
+  ],
+  "reference_seed": 113,
+  "epochs": 50,
+  "batch_size": 32,
+  "learning_rate": 0.001,
+  "sampling": "original_stochastic",
+  "preprocessing": "TIFF_L_repeat_RGB_tf_bilinear128_div255_no_augmentation",
+  "evaluation": "image_metrics_participant_cluster_bootstrap",
+  "classes": [
+    "AN",
+    "DI",
+    "FE",
+    "HA",
+    "NE",
+    "SA",
+    "SU"
+  ],
+  "participants": {
+    "train": [
+      "KA",
+      "KL",
+      "KM",
+      "KR",
+      "MK",
+      "NA"
+    ],
+    "validation": [
+      "NM",
+      "TM"
+    ],
+    "test": [
+      "UY",
+      "YM"
+    ]
+  },
+  "loss_weights": {
+    "reconstruction": 1.0,
+    "classification": 1.0,
+    "kl": 0.01,
+    "archetype_simplex": 1.0,
+    "coefficient_entropy": 0.0
+  },
+  "latent_dimension": "K-1",
+  "matching": "validation_only_Pearson_or_2MAE",
+  "degenerate_std_threshold": 1e-08,
+  "bootstrap_resamples": 1000,
+  "bootstrap_seed": 2026,
+  "nearest_real_top_n": 10,
+  "experiment_id": "jaffe_k3_example_v1",
+  "dataset": "JAFFE"
+}

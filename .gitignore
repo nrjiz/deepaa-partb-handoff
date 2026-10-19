@@ -1,0 +1,12 @@
+# New JAFFE work only; already tracked HAM10000 evidence remains untouched.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv*/
+.env
+.env.*
+jaffe_data/
+jaffe_partb_runs/
+jaffe_local/
+*.tiff
+*.tif
